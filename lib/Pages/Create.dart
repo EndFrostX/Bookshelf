@@ -7,7 +7,6 @@ class CreatePage extends StatefulWidget {
 }
 
 class _CreatePageState extends State<CreatePage> {
-
   double _width;
 
   @override
@@ -18,68 +17,79 @@ class _CreatePageState extends State<CreatePage> {
       body: _myBody,
     );
   }
-  get _myAppBar{
+
+  get _myAppBar {
     return AppBar(
-      title: Container(child: Row(children: [Text("Upload your PDF,")],),),
+      title: Text("Upload Book"),
     );
   }
-  get _myBody{
+
+  get _myBody {
     return SingleChildScrollView(
       child: Column(
         children: [
-          SizedBox(height: 26,),
-          Center(child: _myUrlTextField,),
-          SizedBox(height: 26,),
+          SizedBox(
+            height: 26,
+          ),
+          Center(
+            child: _myUrlTextField,
+          ),
+          SizedBox(
+            height: 26,
+          ),
           _infoTextField,
         ],
       ),
     );
   }
-  get _myUrlTextField{
+
+  get _myUrlTextField {
     return Container(
       width: _width * 0.90,
       child: TextField(
         decoration: InputDecoration(
           hintText: "PDF Url",
-          hintStyle: TextStyle(fontSize: 20,
+          hintStyle: TextStyle(
+              fontSize: 15,
               color: Colors.grey.withOpacity(0.6),
               fontWeight: FontWeight.w600),
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(27),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(27),
+            borderSide: BorderSide(
+              width: 4,
+            ),
           ),
-          contentPadding: EdgeInsets.symmetric(
-              horizontal: 28,
-              vertical: 20),
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         ),
         style: TextStyle(
           color: Colors.black.withOpacity(0.4),
-          fontSize: 20,
+          fontSize: 15,
         ),
         keyboardType: TextInputType.url,
         textCapitalization: TextCapitalization.words,
       ),
     );
   }
-  get _infoTextField{
+
+  get _infoTextField {
     return Container(
       width: _width * 0.90,
       child: TextField(
         decoration: InputDecoration(
           labelText: "PDF",
           hintText: "Enter your PDF Url",
-          hintStyle: TextStyle(fontSize: 20,
+          hintStyle: TextStyle(
+              fontSize: 15,
               color: Colors.grey.withOpacity(0.6),
               fontWeight: FontWeight.w600),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(27),
           ),
-          contentPadding: EdgeInsets.symmetric(
-              horizontal: 28,
-              vertical: 20),
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         ),
         style: TextStyle(
           color: Colors.black.withOpacity(0.4),
-          fontSize: 20,
+          fontSize: 15,
         ),
         keyboardType: TextInputType.url,
         textCapitalization: TextCapitalization.words,
