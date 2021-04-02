@@ -3,10 +3,11 @@ import 'package:bookshelf/models/ServerResponse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
-String address = "localhost:3000";
+String address = "127.0.0.1:8000";
+String group = "/api";
 
 Future<ServerResponse> getAllBookCategories() async {
-  Uri url = Uri.http(address, "/book-categories");
+  Uri url = Uri.http(address, "$group/book-categories");
   Response res = await get(url);
 
   if (res.statusCode == 200) {
