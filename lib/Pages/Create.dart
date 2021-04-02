@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:searchable_dropdown/searchable_dropdown.dart';
+// import 'package:searchable_dropdown/searchable_dropdown.dart';
 
 class CreatePage extends StatefulWidget {
   @override
@@ -20,20 +20,20 @@ class _CreatePageState extends State<CreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    _widgets = {
-      "Single dialog": SearchableDropdown.single(
-        items: items,
-        value: selectedValue,
-        hint: "Select one",
-        searchHint: "Select one",
-        onChanged: (value) {
-          setState(() {
-            selectedValue = value;
-          });
-        },
-        isExpanded: true,
-      ),
-    }
+    // _widgets = {
+    //   "Single dialog": SearchableDropdown.single(
+    //     items: items,
+    //     value: selectedValue,
+    //     hint: "Select one",
+    //     searchHint: "Select one",
+    //     onChanged: (value) {
+    //       setState(() {
+    //         selectedValue = value;
+    //       });
+    //     },
+    //     isExpanded: true,
+    //   ),
+    // }
     _width = MediaQuery
         .of(context)
         .size
@@ -117,8 +117,6 @@ class _CreatePageState extends State<CreatePage> {
           SizedBox(
             height: 26,
           ),
-        ],
-      ),
-    );
+        ],));
   }
 }

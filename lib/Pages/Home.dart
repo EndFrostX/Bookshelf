@@ -17,8 +17,14 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    _height = MediaQuery.of(context).size.height;
-    _width = MediaQuery.of(context).size.width;
+    _height = MediaQuery
+        .of(context)
+        .size
+        .height;
+    _width = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     return Scaffold(
       appBar: _myAppBar,
@@ -54,29 +60,32 @@ class _HomeState extends State<Home> {
   _myDrawerList(IconData icon, String text) {
     return InkWell(
         child: Container(
-      margin: EdgeInsets.only(bottom: 10),
-      width: MediaQuery.of(context).size.width,
-      height: 60,
-      padding: EdgeInsets.all(10),
-      child: Row(
-        children: [
-          Icon(icon),
-          Container(
-            padding: EdgeInsets.only(left: 35),
-            child: Text(
-              text,
-              style: TextStyle(fontSize: 20),
-            ),
+          margin: EdgeInsets.only(bottom: 10),
+          width: MediaQuery
+              .of(context)
+              .size
+              .width,
+          height: 60,
+          padding: EdgeInsets.all(10),
+          child: Row(
+            children: [
+              Icon(icon),
+              Container(
+                padding: EdgeInsets.only(left: 35),
+                child: Text(
+                  text,
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Expanded(
+                  child: Container(
+                    padding: EdgeInsets.only(right: 10),
+                    alignment: Alignment.centerRight,
+                    child: Icon(Icons.arrow_forward),
+                  )),
+            ],
           ),
-          Expanded(
-              child: Container(
-            padding: EdgeInsets.only(right: 10),
-            alignment: Alignment.centerRight,
-            child: Icon(Icons.arrow_forward),
-          )),
-        ],
-      ),
-    ));
+        ));
   }
 
   get _myAppBar {
@@ -207,13 +216,14 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-  get _showDialogue{
-    showDialog(context: context, builder: (context){
+
+  get _showDialogue {
+    showDialog(context: context, builder: (context) {
       return AlertDialog(
         title: Text("Option"),
         backgroundColor: Colors.white,
         actions: [
-          ElevatedButton(child: Text("Cancel"), onPressed: (){
+          ElevatedButton(child: Text("Cancel"), onPressed: () {
             Navigator.of(context).pop();
           })
         ],
@@ -229,11 +239,15 @@ class _HomeState extends State<Home> {
       );
     });
   }
-  _contentDialogue(){
+
+  _contentDialogue() {
     return InkWell(
       child: Center(
         child: Container(
-          width: MediaQuery.of(context).size.width,
+          width: MediaQuery
+              .of(context)
+              .size
+              .width,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -243,8 +257,7 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
-      onTap: (){
-      },
+      onTap: () {},
     );
   }
 }
