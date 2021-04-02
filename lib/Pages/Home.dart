@@ -204,7 +204,42 @@ class _HomeState extends State<Home> {
   }
   get _showDialogue{
     showDialog(context: context, builder: (context){
-      return AlertDialog();
+      return AlertDialog(
+        title: Text("Option"),
+        backgroundColor: Colors.white,
+        actions: [
+          ElevatedButton(child: Text("Cancel"), onPressed: (){
+            Navigator.of(context).pop();
+          })
+        ],
+        content: Container(
+          height: 150,
+          width: 250,
+          child: Column(
+            children: [
+              _contentDialogue(),
+            ],
+          ),
+        ),
+      );
     });
-}
+  }
+  _contentDialogue(){
+    return InkWell(
+      child: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text("Edit"),
+              Expanded(child: Icon(Icons.edit)),
+            ],
+          ),
+        ),
+      ),
+      onTap: (){
+      },
+    );
+  }
 }
