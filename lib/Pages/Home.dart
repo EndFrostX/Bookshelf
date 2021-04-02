@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:page_transition/page_transition.dart';
+
+import 'Create.dart';
+import 'Detail.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -74,7 +78,16 @@ class _HomeState extends State<Home> {
 
   get _myAppBar {
     return AppBar(
-      title: Text("hi"),
+      title: Container(
+        width: _width,
+        child: Row(
+          children: [
+            Expanded(child: IconButton(icon: Icon(Icons.add), onPressed: (){
+              Navigator.of(context).push(PageTransition(child: CreatePage(), type: PageTransitionType.rightToLeft,));
+            },))
+          ],
+        ),
+      ),
     );
   }
 
@@ -116,19 +129,30 @@ class _HomeState extends State<Home> {
   }
 
   _myContainerList() {
-    return Container(
-      height: _height*0.2,
-      width: _width,
-      margin: EdgeInsets.zero,
-      padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _containerPicture("https://149349728.v2.pressablecdn.com/wp-content/uploads/2019/08/The-Crying-Book-by-Heather-Christie-1.jpg"),
-          _containerText(),
-          _containerIcon(),
-        ],
+    return InkWell(
+      child: Container(
+        height: _height*0.2,
+        width: _width,
+        margin: EdgeInsets.zero,
+        padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _containerPicture("https://149349728.v2.pressablecdn.com/wp-content/uploads/2019/08/The-Crying-Book-by-Heather-Christie-1.jpg"),
+            _containerText(),
+            _containerIcon(),
+          ],
+        ),
       ),
+      onTap: (){
+        Navigator.of(context).push(PageTransition(
+          child: DetailPage(),
+          type: PageTransitionType.rightToLeftWithFade,
+        ));
+      },
+      onLongPress: (){
+        _showDialogue;
+      },
     );
   }
   _containerPicture(String img){
@@ -173,10 +197,14 @@ class _HomeState extends State<Home> {
   _containerIcon(){
     return Expanded(
       child: Container(
-
         alignment: Alignment.center,
         child: Icon(Icons.arrow_forward_ios),
       ),
     );
   }
+  get _showDialogue{
+    showDialog(context: context, builder: (context){
+      return AlertDialog();
+    });
+}
 }
