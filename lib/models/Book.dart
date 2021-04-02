@@ -23,37 +23,37 @@ class Book {
     this.view,
   });
 
-  int id;
-  String title;
-  String author;
-  String description;
-  String pdfUrl;
-  int categoryId;
-  String published;
-  int page;
-  int view;
+  final int id;
+  final String title;
+  final String author;
+  final String description;
+  final String pdfUrl;
+  final int categoryId;
+  final String published;
+  final int page;
+  final int view;
 
   factory Book.fromJson(Map<String, dynamic> json) => Book(
-        id: json["id"],
-        title: json["title"],
-        author: json["author"],
+        id: json["id"] == null ? null : json["id"],
+        title: json["title"] == null ? null : json["title"],
+        author: json["author"] == null ? null : json["author"],
         description: json["description"] == null ? null : json["description"],
-        pdfUrl: json["pdfUrl"],
-        categoryId: json["category_id"],
-        published: json["published"],
-        page: json["page"],
-        view: json["view"],
+        pdfUrl: json["pdfUrl"] == null ? null : json["pdfUrl"],
+        categoryId: json["category_id"] == null ? null : json["category_id"],
+        published: json["published"] == null ? null : json["published"],
+        page: json["page"] == null ? null : json["page"],
+        view: json["view"] == null ? null : json["view"],
       );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "title": title,
-        "author": author,
+        "id": id == null ? null : id,
+        "title": title == null ? null : title,
+        "author": author == null ? null : author,
         "description": description == null ? null : description,
-        "pdfUrl": pdfUrl,
-        "category_id": categoryId,
-        "published": published,
-        "page": page,
-        "view": view,
+        "pdfUrl": pdfUrl == null ? null : pdfUrl,
+        "category_id": categoryId == null ? null : categoryId,
+        "published": published == null ? null : published,
+        "page": page == null ? null : page,
+        "view": view == null ? null : view,
       };
 }
