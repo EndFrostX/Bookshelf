@@ -12,7 +12,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   double _width;
   double _height;
 
@@ -28,23 +27,21 @@ class _HomeState extends State<Home> {
     );
   }
 
-  get _myDrawer{
+  get _myDrawer {
     return Drawer(
       child: ListView(
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
-                Colors.deepPurple,
-                Colors.purpleAccent,
-              ]),
-              image: DecorationImage(
-                image: NetworkImage("https://i.imgur.com/XiyhRr9.jpg"),
-                fit: BoxFit.cover,
-              )
-            ),
-              child: Container()
-          ),
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [
+                    Colors.deepPurple,
+                    Colors.purpleAccent,
+                  ]),
+                  image: DecorationImage(
+                    image: NetworkImage("https://i.imgur.com/XiyhRr9.jpg"),
+                    fit: BoxFit.cover,
+                  )),
+              child: Container()),
           _myDrawerList(Icons.home, "General"),
           _myDrawerList(Icons.category, "Category"),
           _myDrawerList(Icons.bookmark, "BookMark"),
@@ -53,41 +50,50 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-  _myDrawerList(IconData icon, String text){
+
+  _myDrawerList(IconData icon, String text) {
     return InkWell(
         child: Container(
-          margin: EdgeInsets.only(bottom: 10),
-          width: MediaQuery.of(context).size.width,
-          height: 60,
-          padding: EdgeInsets.all(10),
-          child: Row(
-            children: [
-              Icon(icon),
-              Container(
-                padding: EdgeInsets.only(left: 35),
-                child: Text(text, style: TextStyle(fontSize: 20),),
-              ),
-              Expanded(child: Container(
-                padding: EdgeInsets.only(right: 10),
-                alignment: Alignment.centerRight,
-                child: Icon(Icons.arrow_forward),)),
-            ],
-        ),
+      margin: EdgeInsets.only(bottom: 10),
+      width: MediaQuery.of(context).size.width,
+      height: 60,
+      padding: EdgeInsets.all(10),
+      child: Row(
+        children: [
+          Icon(icon),
+          Container(
+            padding: EdgeInsets.only(left: 35),
+            child: Text(
+              text,
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+          Expanded(
+              child: Container(
+            padding: EdgeInsets.only(right: 10),
+            alignment: Alignment.centerRight,
+            child: Icon(Icons.arrow_forward),
+          )),
+        ],
+      ),
     ));
   }
 
   get _myAppBar {
     return AppBar(
-      title: Container(
-        width: _width,
-        child: Row(
-          children: [
-            Expanded(child: IconButton(icon: Icon(Icons.add), onPressed: (){
-              Navigator.of(context).push(PageTransition(child: CreatePage(), type: PageTransitionType.rightToLeft,));
-            },))
-          ],
+      actions: [
+        Container(
+          child: IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              Navigator.of(context).push(PageTransition(
+                child: CreatePage(),
+                type: PageTransitionType.rightToLeft,
+              ));
+            },
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -131,31 +137,33 @@ class _HomeState extends State<Home> {
   _myContainerList() {
     return InkWell(
       child: Container(
-        height: _height*0.2,
+        height: _height * 0.2,
         width: _width,
         margin: EdgeInsets.zero,
         padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _containerPicture("https://149349728.v2.pressablecdn.com/wp-content/uploads/2019/08/The-Crying-Book-by-Heather-Christie-1.jpg"),
+            _containerPicture(
+                "https://149349728.v2.pressablecdn.com/wp-content/uploads/2019/08/The-Crying-Book-by-Heather-Christie-1.jpg"),
             _containerText(),
             _containerIcon(),
           ],
         ),
       ),
-      onTap: (){
+      onTap: () {
         Navigator.of(context).push(PageTransition(
           child: DetailPage(),
           type: PageTransitionType.rightToLeftWithFade,
         ));
       },
-      onLongPress: (){
+      onLongPress: () {
         _showDialogue;
       },
     );
   }
-  _containerPicture(String img){
+
+  _containerPicture(String img) {
     return Card(
       elevation: 10,
       child: Container(
@@ -177,24 +185,21 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-  _containerText(){
+
+  _containerText() {
     return Container(
       padding: EdgeInsets.only(left: 10),
       width: _width * 0.45,
       height: _height * 0.3,
-
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Title: fiasefsd"),
-          Text("Author: fuck")
-        ],
+        children: [Text("Title: fiasefsd"), Text("Author: fuck")],
       ),
-
     );
   }
-  _containerIcon(){
+
+  _containerIcon() {
     return Expanded(
       child: Container(
         alignment: Alignment.center,
