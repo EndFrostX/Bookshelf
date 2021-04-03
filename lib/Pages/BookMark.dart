@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class CategoryPage extends StatefulWidget {
+class BookMarkPage extends StatefulWidget {
   @override
-  _CategoryPageState createState() => _CategoryPageState();
+  _BookMarkPageState createState() => _BookMarkPageState();
 }
 
-class _CategoryPageState extends State<CategoryPage> {
+class _BookMarkPageState extends State<BookMarkPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,9 +14,11 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
   get _myAppBar{
-    return AppBar();
+
   }
   get _myBody{
-    return Container();
+    return ListView(
+
+    );
   }
 }

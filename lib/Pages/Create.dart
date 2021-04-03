@@ -1,6 +1,8 @@
+import 'package:bookshelf/models/Book.dart';
 import 'package:bookshelf/models/BookCategory.dart';
 import 'package:bookshelf/models/BookCategoryResponse.dart';
 import 'package:bookshelf/repos/book_category_repo.dart';
+import 'package:bookshelf/repos/book_repo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:searchable_dropdown/searchable_dropdown.dart';
@@ -18,8 +20,12 @@ class _CreatePageState extends State<CreatePage> {
   var _pdfController = TextEditingController();
   var _titleController = TextEditingController();
   var _authorController = TextEditingController();
+  var _publishedController = TextEditingController();
+  var _pagesController = TextEditingController();
   var _descriptionController = TextEditingController();
   int _categoryInput;
+
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -29,11 +35,14 @@ class _CreatePageState extends State<CreatePage> {
       _fetchCategories = getAllBookCategories();
     });
   }
-
+  void _message(String text, Color color){
+    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(content: Text(text), backgroundColor: color,));
+  }
   @override
   Widget build(BuildContext context) {
     _width = MediaQuery.of(context).size.width;
     return Scaffold(
+      key: _scaffoldKey,
       appBar: _myAppBar,
       body: _myBody,
     );
@@ -60,31 +69,32 @@ class _CreatePageState extends State<CreatePage> {
   }
 
   get _contentCategory {
-    return Card(
-      child: Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(27)),
-        child: Column(
-          children: [
-            Text("There are ${_allCategories.length} :"),
-            SearchableDropdown.single(
-              items: _allCategories.map((BookCategory category) {
-                return new DropdownMenuItem(
-                  child: Text(category.name),
-                  value: category.id,
-                );
-              }).toList(),
-              isExpanded: true,
-              searchHint: new Text("Select"),
-              label: Text("Category"),
-              onChanged: (value) {
-                setState(() {
-                  _categoryInput = value;
-                  print(_categoryInput);
-                });
-              },
-            ),
-          ],
-        ),
+    return Container(
+      width: _width * 0.8,
+      decoration: BoxDecoration(
+        border: Border.all(),
+          borderRadius: BorderRadius.circular(27)),
+      child: Column(
+        children: [
+          Text("There are ${_allCategories.length} :"),
+          SearchableDropdown.single(
+            items: _allCategories.map((BookCategory category) {
+              return new DropdownMenuItem(
+                child: Text(category.name),
+                value: category.id,
+              );
+            }).toList(),
+            isExpanded: true,
+            searchHint: new Text("Select"),
+            label: Text("Category"),
+            onChanged: (value) {
+              setState(() {
+                _categoryInput = value;
+                print(_categoryInput);
+              });
+            },
+          ),
+        ],
       ),
     );
   }
@@ -110,14 +120,61 @@ class _CreatePageState extends State<CreatePage> {
               capitalization: TextCapitalization.sentences,
               myController: _descriptionController,
               max: 10),
+          _textFieldStuff("Published", "Enter the published Date",
+              capitalization: TextCapitalization.none,
+              myController: _publishedController,
+              keyboard: TextInputType.numberWithOptions()),
+          _textFieldStuff("Pages", "Enter the total pages of the PDF",
+              capitalization: TextCapitalization.none,
+              myController: _pagesController,
+              keyboard: TextInputType.numberWithOptions()),
           _futureBuilder,
           ElevatedButton(
             child: Text("Upload"),
-            onPressed: () {},
+            onPressed: () {
+              _auth;
+            },
           )
         ],
       ),
     );
+  }
+  get _auth{
+    if(_pdfController.text.trim().isNotEmpty ||
+    _titleController.text.trim().isNotEmpty ||
+    _authorController.text.trim().isNotEmpty ||
+    _descriptionController.text.trim().isNotEmpty ||
+    _categoryInput != null){
+      Book book = Book(
+        id: 0,
+        title: _pdfController.text.trim(),
+        author: _authorController.text.trim(),
+        description: _descriptionController.text.trim(),
+        pdfUrl: _pdfController.text.trim(),
+        categoryId: _categoryInput,
+        published:_publishedController.text.trim(),
+        page: int.parse(_pagesController.text.trim()),
+      );
+      insertBook(book).then((value){
+        if(!value.error){
+          _message(value.message, Colors.lightGreen);
+          _pdfController.text = null;
+          _authorController.text = null;
+          _descriptionController.text = null;
+          _pdfController.text = null;
+          _categoryInput = null;
+          _publishedController.text = null;
+          _pagesController.text = null;
+          Navigator.of(context).pop();
+        }
+        else{
+          _message(value.message, Colors.redAccent);
+        }
+      });
+    }
+    else{
+      _message("Please fill all the fields before proceeding", Colors.redAccent);
+    }
   }
 
   _textFieldStuff(String label, String hint,

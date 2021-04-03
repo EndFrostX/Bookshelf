@@ -1,3 +1,7 @@
+import 'package:bookshelf/Pages/BookMark.dart';
+import 'package:bookshelf/Pages/Category.dart';
+import 'package:bookshelf/models/Book.dart';
+import 'package:bookshelf/repos/book_repo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -5,6 +9,7 @@ import 'package:page_transition/page_transition.dart';
 
 import 'Create.dart';
 import 'Detail.dart';
+import 'PrivacyPolicy.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -14,7 +19,17 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   double _width;
   double _height;
+  Future<dynamic> _futureData;
+  List<Book> _data;
+  var _saved = Set<Book>();
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _futureData = getAllBooks();
+
+  }
   @override
   Widget build(BuildContext context) {
     _height = MediaQuery
@@ -28,7 +43,7 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       appBar: _myAppBar,
-      body: _buildListView(),
+      body: _myBody,
       drawer: _myDrawer,
     );
   }
@@ -48,16 +63,19 @@ class _HomeState extends State<Home> {
                     fit: BoxFit.cover,
                   )),
               child: Container()),
-          _myDrawerList(Icons.home, "General"),
-          _myDrawerList(Icons.category, "Category"),
-          _myDrawerList(Icons.bookmark, "BookMark"),
-          _myDrawerList(Icons.policy, "Privacy & Policy"),
+          _myDrawerList(Icons.home, "General", colored: Colors.grey),
+          _myDrawerList(Icons.category, "Category",
+              page: CategoryPage()),
+          _myDrawerList(Icons.bookmark, "BookMark",
+              page: BookMarkPage()),
+          _myDrawerList(Icons.policy, "Privacy & Policy",
+              page: PrivacyPolicyPage()),
         ],
       ),
     );
   }
 
-  _myDrawerList(IconData icon, String text) {
+  _myDrawerList(IconData icon, String text, {Widget page, Color colored = Colors.amber}) {
     return InkWell(
         child: Container(
           margin: EdgeInsets.only(bottom: 10),
@@ -69,7 +87,7 @@ class _HomeState extends State<Home> {
           padding: EdgeInsets.all(10),
           child: Row(
             children: [
-              Icon(icon),
+              Icon(icon, color: colored),
               Container(
                 padding: EdgeInsets.only(left: 35),
                 child: Text(
@@ -81,11 +99,15 @@ class _HomeState extends State<Home> {
                   child: Container(
                     padding: EdgeInsets.only(right: 10),
                     alignment: Alignment.centerRight,
-                    child: Icon(Icons.arrow_forward),
+                    child: Icon(Icons.arrow_forward, color: colored),
                   )),
             ],
           ),
-        ));
+        ),
+      onTap: () {
+        Navigator.of(context).push(PageTransition(child: page, type: PageTransitionType.rightToLeftWithFade));
+      }
+    );
   }
 
   get _myAppBar {
@@ -106,96 +128,118 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // get _myBody {
-  //   return FutureBuilder(
-  //       future:,
-  //       builder: (context, snapshot) {
-  //         if (snapshot.connectionState == ConnectionState.done) {
-  //           return _myListView;
-  //         }
-  //         else {
-  //           return CircularProgressIndicator();
-  //         }
-  //       });
-  // }
-  //
-  // get _myListView {
-  //   return ListView.builder(
-  //       physics: BouncingScrollPhysics(),
-  //       itemCount:,
-  //       itemBuilder: (context, index) {
-  //         return _buildListView();
-  //       });
-  // }
+  get _myBody {
+    print(_futureData);
+    if(_futureData == null){
+      return Center(child: Container(
+        child: Text("It seems there's no upload books right now, "
+            "please come back another time", style: TextStyle(color: Colors.grey.withOpacity(0.4)))
+      ));
+    }
+    else{
+    return FutureBuilder(
+        future: _futureData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if(snapshot.data == null){
+              return Center(child: Container(
+                  width: _width * 0.8,
+                  child: Text("It seems there's no uploaded book right now, "
+                  "please come back another time", style: TextStyle(color: Colors.grey, fontSize: 16))));
+              }
+            else {
+              _data = snapshot.data.data;
+              return _myListView;
+            }
+          }
+          else {
+            return CircularProgressIndicator();
+          }
+        });
+    }
+  }
 
-  _buildListView() {
+  get _myListView {
+    return ListView.builder(
+        physics: BouncingScrollPhysics(),
+        itemCount: _data.length,
+        itemBuilder: (context, index) {
+          return _buildListView(_data[index]);
+        });
+  }
+
+  _buildListView(dynamic book) {
     return Container(
       width: _width,
       child: ListView(
         shrinkWrap: true,
         physics: BouncingScrollPhysics(),
         children: [
-          _myContainerList(),
-          _myContainerList(),
-          _myContainerList(),
+          _myContainerList(book),
         ],
       ),
     );
   }
 
-  _myContainerList() {
+  _myContainerList(Book book) {
+    return Container(
+      height: _height * 0.2,
+      width: _width,
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _containerPicture(book.pdfUrl),
+          _containerText(title: book.title,
+              author: book.author,
+              description: book.description,
+              published: book.published,),
+          _containerIcon(book),
+        ],
+      ),
+    );
+  }
+
+  _containerPicture(String img) {
     return InkWell(
-      child: Container(
-        height: _height * 0.2,
-        width: _width,
-        margin: EdgeInsets.zero,
-        padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _containerPicture(
-                "https://149349728.v2.pressablecdn.com/wp-content/uploads/2019/08/The-Crying-Book-by-Heather-Christie-1.jpg"),
-            _containerText(),
-            _containerIcon(),
-          ],
+      child: Card(
+        elevation: 10,
+        child: Container(
+          width: _width * 0.35,
+          height: _height * 0.3,
+          decoration: BoxDecoration(
+            color: Colors.red,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blueAccent.withOpacity(0.2),
+                blurRadius: 12,
+              ),
+            ],
+            image: DecorationImage(
+              image: NetworkImage(img),
+              fit: BoxFit.fitHeight,
+            ),
+          ),
         ),
       ),
-      onTap: () {
+      onTap: (){
         Navigator.of(context).push(PageTransition(
           child: DetailPage(),
           type: PageTransitionType.rightToLeftWithFade,
         ));
       },
-      onLongPress: () {
-        _showDialogue;
+      onLongPress: (){
+        _showDialogue();
       },
     );
   }
 
-  _containerPicture(String img) {
-    return Card(
-      elevation: 10,
-      child: Container(
-        width: _width * 0.35,
-        height: _height * 0.3,
-        decoration: BoxDecoration(
-          color: Colors.red,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blueAccent.withOpacity(0.2),
-              blurRadius: 12,
-            ),
-          ],
-          image: DecorationImage(
-            image: NetworkImage(img),
-            fit: BoxFit.fitHeight,
-          ),
-        ),
-      ),
-    );
-  }
-
-  _containerText() {
+  _containerText(
+      {String title,
+      String author,
+      String description,
+      String published}) {
     return Container(
       padding: EdgeInsets.only(left: 10),
       width: _width * 0.45,
@@ -203,17 +247,31 @@ class _HomeState extends State<Home> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [Text("Title: fiasefsd"), Text("Author: fuck")],
+        children: [
+          Text("Title: $title"),
+          Text("Author: $author"),
+          Text("Published Date: $published"),
+          Text(description),
+        ],
       ),
     );
   }
 
-  _containerIcon() {
-    return Expanded(
-      child: Container(
-        alignment: Alignment.center,
-        child: Icon(Icons.arrow_forward_ios),
+  _containerIcon(Book book) {
+    bool _bookmark = false;
+    return InkWell(
+      child: Expanded(
+        child: Container(
+          alignment: Alignment.center,
+          child: _bookmark ?
+          Icon(Icons.bookmark, color: Colors.amber,) :
+          Icon(Icons.check, color: Colors.lightGreen,),
+        ),
       ),
+      onTap: (){
+        _saved.add(book);
+        _bookmark = !_bookmark;
+      },
     );
   }
 
@@ -232,7 +290,7 @@ class _HomeState extends State<Home> {
           width: 250,
           child: Column(
             children: [
-              _contentDialogue(),
+              _contentDialogue("Edit", Icons.edit),
             ],
           ),
         ),
@@ -240,7 +298,7 @@ class _HomeState extends State<Home> {
     });
   }
 
-  _contentDialogue() {
+  _contentDialogue(String text, IconData icon) {
     return InkWell(
       child: Center(
         child: Container(
@@ -251,13 +309,14 @@ class _HomeState extends State<Home> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text("Edit"),
-              Expanded(child: Icon(Icons.edit)),
+              Text(text),
+              Expanded(child: Icon(icon)),
             ],
           ),
         ),
       ),
-      onTap: () {},
+      //onTap: onTap,
+        onTap: (){},
     );
   }
 }
