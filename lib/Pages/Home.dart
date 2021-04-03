@@ -194,7 +194,7 @@ class _HomeState extends State<Home> {
           _containerText(title: book.title,
               author: book.author,
               description: book.description,
-              published: book.published,),
+              published: book.published),
           _containerIcon(book),
         ],
       ),
@@ -239,7 +239,7 @@ class _HomeState extends State<Home> {
       {String title,
       String author,
       String description,
-      String published}) {
+        String published}) {
     return Container(
       padding: EdgeInsets.only(left: 10),
       width: _width * 0.45,
