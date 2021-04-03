@@ -1,9 +1,15 @@
+import 'package:bookshelf/models/Book.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'Category.dart';
 
 class DetailPage extends StatefulWidget {
+
+  final Book book;
+
+  DetailPage(this.book);
+
   @override
   _DetailPageState createState() => _DetailPageState();
 }

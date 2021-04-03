@@ -9,6 +9,7 @@ import 'package:page_transition/page_transition.dart';
 
 import 'Create.dart';
 import 'Detail.dart';
+import 'Edit.dart';
 import 'PrivacyPolicy.dart';
 
 class Home extends StatefulWidget {
@@ -23,6 +24,10 @@ class _HomeState extends State<Home> {
   List<Book> _data;
   var _saved = Set<Book>();
 
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
+  void _message(String text, Color color){
+    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(content: Text(text), backgroundColor: color,));
+  }
   @override
   void initState() {
     // TODO: implement initState
@@ -42,6 +47,7 @@ class _HomeState extends State<Home> {
         .width;
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: _myAppBar,
       body: _myBody,
       drawer: _myDrawer,
@@ -160,12 +166,19 @@ class _HomeState extends State<Home> {
   }
 
   get _myListView {
-    return ListView.builder(
-        physics: BouncingScrollPhysics(),
-        itemCount: _data.length,
-        itemBuilder: (context, index) {
-          return _buildListView(_data[index]);
+    return RefreshIndicator(
+      child: ListView.builder(
+          physics: BouncingScrollPhysics(),
+          itemCount: _data.length,
+          itemBuilder: (context, index) {
+            return _buildListView(_data[index]);
+          }),
+      onRefresh: ()async{
+        setState(() {
+          _futureData = getAllBooks();
         });
+      },
+    );
   }
 
   _buildListView(dynamic book) {
@@ -182,26 +195,34 @@ class _HomeState extends State<Home> {
   }
 
   _myContainerList(Book book) {
-    return Container(
-      height: _height * 0.2,
-      width: _width,
-      margin: EdgeInsets.zero,
-      padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _containerPicture(book.pdfUrl),
-          _containerText(title: book.title,
-              author: book.author,
-              description: book.description,
-              published: book.published),
-          _containerIcon(book),
-        ],
+    return InkWell(
+      child: Container(
+        height: _height * 0.2,
+        width: _width,
+        margin: EdgeInsets.zero,
+        padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _containerPicture(book.pdfUrl, book),
+            _containerText(title: book.title,
+                author: book.author,
+                description: book.description,
+                published: book.published),
+            _containerIcon(book),
+          ],
+        ),
       ),
+      onTap: (){
+        Navigator.of(context).push(PageTransition(child: DetailPage(book), type: PageTransitionType.rightToLeftWithFade));
+      },
+      onLongPress: (){
+        _showDialogue(book);
+      },
     );
   }
 
-  _containerPicture(String img) {
+  _containerPicture(String img, Book book) {
     return InkWell(
       child: Card(
         elevation: 10,
@@ -225,12 +246,12 @@ class _HomeState extends State<Home> {
       ),
       onTap: (){
         Navigator.of(context).push(PageTransition(
-          child: DetailPage(),
+          child: DetailPage(book),
           type: PageTransitionType.rightToLeftWithFade,
         ));
       },
       onLongPress: (){
-        _showDialogue();
+        _showDialogue(book);
       },
     );
   }
@@ -270,12 +291,13 @@ class _HomeState extends State<Home> {
       ),
       onTap: (){
         _saved.add(book);
+        _message("Added to bookmark", Colors.lightGreen);
         _bookmark = !_bookmark;
       },
     );
   }
 
-  get _showDialogue {
+  _showDialogue(Book book) {
     showDialog(context: context, builder: (context) {
       return AlertDialog(
         title: Text("Option"),
@@ -290,7 +312,18 @@ class _HomeState extends State<Home> {
           width: 250,
           child: Column(
             children: [
-              _contentDialogue("Edit", Icons.edit),
+              _contentDialogue("Edit", Icons.edit, function: (){
+                Navigator.of(context).push(PageTransition(child: EditPage(book), type: PageTransitionType.rightToLeftWithFade));
+                Navigator.of(context).pop();
+              }),
+              _contentDialogue("Delete", Icons.delete, function: (){
+                deleteBook(book);
+                _message("Deleted", Colors.redAccent);
+                setState(() {
+                  _futureData = getAllBooks();
+                });
+                Navigator.of(context).pop();
+              }),
             ],
           ),
         ),
@@ -298,7 +331,7 @@ class _HomeState extends State<Home> {
     });
   }
 
-  _contentDialogue(String text, IconData icon) {
+  _contentDialogue(String text, IconData icon, {Function function}) {
     return InkWell(
       child: Center(
         child: Container(
@@ -316,7 +349,7 @@ class _HomeState extends State<Home> {
         ),
       ),
       //onTap: onTap,
-        onTap: (){},
+        onTap: function,
     );
   }
 }

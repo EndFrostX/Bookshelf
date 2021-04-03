@@ -24,7 +24,7 @@ class _CreatePageState extends State<CreatePage> {
   var _pagesController = TextEditingController();
   var _descriptionController = TextEditingController();
   int _categoryInput;
-
+  BookCategory _tempHolderOfCategory;
   var _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -76,21 +76,24 @@ class _CreatePageState extends State<CreatePage> {
           borderRadius: BorderRadius.circular(27)),
       child: Column(
         children: [
-          Text("There are ${_allCategories.length} :"),
+          // Text("There are ${_allCategories.length} :"),
           SearchableDropdown.single(
             items: _allCategories.map((BookCategory category) {
+              //print(category.name);
               return new DropdownMenuItem(
                 child: Text(category.name),
-                value: category.id,
+                value: category,
               );
             }).toList(),
             isExpanded: true,
             searchHint: new Text("Select"),
-            label: Text("Category"),
+            label: Padding(
+              padding: const EdgeInsets.only(left: 20, top: 20),
+              child: Text("Category"),
+            ),
             onChanged: (value) {
               setState(() {
-                _categoryInput = value;
-                print(_categoryInput);
+                _tempHolderOfCategory = value;
               });
             },
           ),
@@ -140,6 +143,10 @@ class _CreatePageState extends State<CreatePage> {
     );
   }
   get _auth{
+
+    List<dynamic> rise;
+    rise = _tempHolderOfCategory.toString().split(" ");
+    _categoryInput = int.parse(rise.last);
     if(_pdfController.text.trim().isNotEmpty ||
     _titleController.text.trim().isNotEmpty ||
     _authorController.text.trim().isNotEmpty ||
