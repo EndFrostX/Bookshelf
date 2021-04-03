@@ -1,4 +1,5 @@
 import 'package:bookshelf/Models/BookCategory.dart';
+import 'package:bookshelf/Models/ServerResponse.dart';
 import 'package:bookshelf/Repos/book_category_repo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class CreatePage extends StatefulWidget {
 
 class _CreatePageState extends State<CreatePage> {
   double _width;
-  List<BookCategory> _data;
+  List<dynamic> _data;
   var _pdfController = TextEditingController();
   var _titleController = TextEditingController();
   var _authorController = TextEditingController();
@@ -42,6 +43,7 @@ class _CreatePageState extends State<CreatePage> {
         builder: (context, snapshot){
       if(snapshot.connectionState == ConnectionState.done){
         _data = snapshot.data.data;
+        print(snapshot.data.data);
         return _contentCategory();
       }
       else{
@@ -49,6 +51,7 @@ class _CreatePageState extends State<CreatePage> {
       }
     });
   }
+
   _contentCategory(){
     return Card(
       child: Container(
@@ -58,7 +61,7 @@ class _CreatePageState extends State<CreatePage> {
             Text("Enter"),
             SearchableDropdown.single(
               items: _data.map((category){
-                return new DropdownMenuItem(child: Text(category.name), value: category.name,);
+                return new DropdownMenuItem(child: Text(category), value: category,);
               }).toList(),
               isExpanded: true,
               value: _categoryController,
