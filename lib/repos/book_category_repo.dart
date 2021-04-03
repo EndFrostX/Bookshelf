@@ -1,18 +1,15 @@
-import 'package:bookshelf/models/ServerResponse.dart';
+import 'package:bookshelf/models/BookCategoryResponse.dart';
+import 'package:bookshelf/repos/repo_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
 
-String address = "samdy-bookshelf-api.herokuapp.com";
-String group = "/api/book-categories";
-
-
-Future<ServerResponse> getAllBookCategories() async {
-  Uri url = Uri.http(address, "$group");
+Future<BookCategoryResponse> getAllBookCategories() async {
+  Uri url = Uri.https(api_address, "$api_group/book-categories");
   Response res = await get(url);
 
   if (res.statusCode == 200) {
-    return compute(serverResponseFromJson, res.body);
+    return compute(bookCategoryResponseFromJson, res.body);
   } else {
     throw Exception("Connection Failed");
   }
