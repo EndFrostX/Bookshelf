@@ -20,7 +20,7 @@ class Book {
     this.categoryId,
     this.published,
     this.page,
-    this.view,
+    this.view = 0,
   });
 
   final int id;
