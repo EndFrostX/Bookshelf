@@ -54,14 +54,12 @@ class _HomeState extends State<Home> {
     );
   }
 
-
   get _myBody {
     return FutureBuilder<BookResponse>(
       future: _futureData,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           _data = snapshot.data.data;
-
           if (_data.isEmpty) {
             return Center(
               child: Container(
@@ -69,7 +67,10 @@ class _HomeState extends State<Home> {
                 child: Text(
                   "It seems there's no uploaded book right now, "
                   "please come back another time",
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             );

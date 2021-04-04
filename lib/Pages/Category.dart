@@ -1,3 +1,9 @@
+import 'package:bookshelf/models/Book.dart';
+import 'package:bookshelf/models/BookCategory.dart';
+import 'package:bookshelf/models/BookCategoryResponse.dart';
+import 'package:bookshelf/models/BookResponse.dart';
+import 'package:bookshelf/repos/book_category_repo.dart';
+import 'package:bookshelf/repos/book_repo.dart';
 import 'package:flutter/material.dart';
 
 class CategoryPage extends StatefulWidget {
@@ -6,6 +12,74 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
+  List<Book> _allBooks;
+  Future<BookCategoryResponse> _fetchAllCategories;
+  List<BookCategory> _allCategories;
+
+  get _myBody {
+    return Container(
+      child: FutureBuilder<BookCategoryResponse>(
+        future: _fetchAllCategories,
+        builder: (_, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            _allCategories = snapshot.data.data;
+            return _categoryList;
+          }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
+    );
+  }
+
+  get _categoryList {
+    return RefreshIndicator(
+      onRefresh: () {
+        setState(() {
+          _fetchAllCategories = getAllBookCategories();
+        });
+        return _fetchAllCategories;
+      },
+      child: ListView.builder(
+        itemCount: _allCategories.length,
+        itemBuilder: (_, index) {
+          return _categoryItem(_allCategories[index]);
+        },
+      ),
+    );
+  }
+
+  _categoryItem(BookCategory item) {
+    return InkWell(
+      onTap: () {
+        List<Book> books =
+            _allBooks.where((book) => book.categoryId == item.id).toList();
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => CategoryDetailPage(category: item, books: books),
+          ),
+        );
+      },
+      child: ListTile(
+        title: Text(item.name),
+        trailing: Icon(Icons.navigate_next),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _fetchAllBooks();
+    setState(() {
+      _fetchAllCategories = getAllBookCategories();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,7 +87,51 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
-  get _myBody{
-    return Container();
+  void _fetchAllBooks() async {
+    await getAllBooks().then((value) {
+      setState(() {
+        _allBooks = value.data;
+      });
+    });
+  }
+}
+
+class CategoryDetailPage extends StatefulWidget {
+  CategoryDetailPage({this.category, this.books});
+
+  BookCategory category;
+  List<Book> books;
+
+  @override
+  _CategoryDetailPageState createState() => _CategoryDetailPageState();
+}
+
+class _CategoryDetailPageState extends State<CategoryDetailPage> {
+  get _buildBody {
+    if (widget.books.isNotEmpty) {
+      return Container(
+        child: ListView.builder(
+          itemCount: widget.books.length,
+          itemBuilder: (_, index) {
+            return ListTile(
+              title: Text(widget.books[index].category.name),
+            );
+          },
+        ),
+      );
+    }
+    return Center(
+      child: Text("Category ${widget.category.name} is empty!"),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.category.name),
+      ),
+      body: _buildBody,
+    );
   }
 }

@@ -4,58 +4,63 @@
 
 import 'dart:convert';
 
-List<Book> bookFromJson(String str) =>
-    List<Book>.from(json.decode(str).map((x) => Book.fromJson(x)));
+import 'package:bookshelf/models/BookCategory.dart';
 
-String bookToJson(List<Book> data) =>
-    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+Book bookFromJson(String str) => Book.fromJson(json.decode(str));
+
+String bookToJson(Book data) => json.encode(data.toJson());
 
 class Book {
   Book({
     this.id,
     this.title,
+    this.pdfUrl,
     this.author,
     this.description,
-    this.pdfUrl,
-    this.categoryId,
     this.published,
     this.pages,
-    this.views = 0,
+    this.views,
     this.createdAt,
+    this.categoryId,
+    this.category,
   });
 
-  final int id;
-  final String title;
-  final String author;
-  final String description;
-  final String pdfUrl;
-  final int categoryId;
-  final String published;
-  final int pages;
-  final int views;
-  final String createdAt;
+  int id;
+  String title;
+  String pdfUrl;
+  String author;
+  String description;
+  String published;
+  int pages;
+  int views;
+  DateTime createdAt;
+  int categoryId;
+  BookCategory category;
 
   factory Book.fromJson(Map<String, dynamic> json) => Book(
-        id: json["id"] == null ? null : json["id"],
-        title: json["title"] == null ? null : json["title"],
-        author: json["author"] == null ? null : json["author"],
-        description: json["description"] == null ? null : json["description"],
-        pdfUrl: json["pdfUrl"] == null ? null : json["pdfUrl"],
-        categoryId: json["category_id"] == null ? null : json["category_id"],
-        published: json["published"] == null ? null : json["published"],
-        pages: json["page"] == null ? null : json["page"],
-        views: json["view"] == null ? null : json["view"],
-        createdAt: json["createdAt"] == null ? null : json["createdAt"],
+        id: json["id"],
+        title: json["title"],
+        pdfUrl: json["pdfUrl"],
+        author: json["author"],
+        description: json["description"],
+        published: json["published"],
+        pages: json["pages"],
+        views: json["views"],
+        createdAt: DateTime.parse(json["createdAt"]),
+        categoryId: json["category_id"],
+        category: BookCategory.fromJson(json["category"]),
       );
 
   Map<String, dynamic> toJson() => {
+        "id": id,
         "title": title,
+        "pdfUrl": pdfUrl,
         "author": author,
         "description": description,
-        "pdfUrl": pdfUrl,
-        "category_id": categoryId,
         "published": published,
         "pages": pages,
-        "createdAt": createdAt != null ? createdAt : DateTime.now().toString(),
+        "views": views,
+        "createdAt": createdAt.toIso8601String(),
+        "category_id": categoryId,
       };
 }
