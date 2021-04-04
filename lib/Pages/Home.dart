@@ -50,87 +50,10 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: _myAppBar,
       body: _myBody,
-      drawer: _myDrawer,
     );
   }
 
-  get _myDrawer {
-    return Drawer(
-      child: ListView(
-        children: [
-          DrawerHeader(
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [
-                    Colors.deepPurple,
-                    Colors.purpleAccent,
-                  ]),
-                  image: DecorationImage(
-                    image: NetworkImage("https://i.imgur.com/XiyhRr9.jpg"),
-                    fit: BoxFit.cover,
-                  )),
-              child: Container()),
-          _myDrawerList(Icons.home, "General", colored: Colors.grey),
-          _myDrawerList(Icons.category, "Category", page: CategoryPage()),
-          _myDrawerList(Icons.bookmark, "BookMark", page: BookMarkPage()),
-          _myDrawerList(Icons.policy, "Privacy & Policy",
-              page: PrivacyPolicyPage()),
-        ],
-      ),
-    );
-  }
-
-  _myDrawerList(IconData icon, String text,
-      {Widget page, Color colored = Colors.amber}) {
-    return InkWell(
-        child: Container(
-          margin: EdgeInsets.only(bottom: 10),
-          width: MediaQuery.of(context).size.width,
-          height: 60,
-          padding: EdgeInsets.all(10),
-          child: Row(
-            children: [
-              Icon(icon, color: colored),
-              Container(
-                padding: EdgeInsets.only(left: 35),
-                child: Text(
-                  text,
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Expanded(
-                  child: Container(
-                padding: EdgeInsets.only(right: 10),
-                alignment: Alignment.centerRight,
-                child: Icon(Icons.arrow_forward, color: colored),
-              )),
-            ],
-          ),
-        ),
-        onTap: () {
-          Navigator.of(context).push(PageTransition(
-              child: page, type: PageTransitionType.rightToLeftWithFade));
-        });
-  }
-
-  get _myAppBar {
-    return AppBar(
-      actions: [
-        Container(
-          child: IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              Navigator.of(context).push(PageTransition(
-                child: CreatePage(),
-                type: PageTransitionType.rightToLeft,
-              ));
-            },
-          ),
-        ),
-      ],
-    );
-  }
 
   get _myBody {
     return FutureBuilder<BookResponse>(
