@@ -172,6 +172,7 @@ class _HomeState extends State<Home> {
           children: [
             _containerPicture(book),
             _containerText(book),
+
             Expanded(child: _containerIcon(book)),
           ],
         ),
