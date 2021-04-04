@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:bookshelf/Class/BookMarkPreferences.dart';
 
+import '../repos/book_repo.dart';
+
 class CategoryDetailPage extends StatefulWidget {
   CategoryDetailPage({this.category});
 
@@ -321,7 +323,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                     Navigator.of(context).pop();
                     deleteBook(book).then((value) {
                       setState(() {
-                        books.removeWhere((e) => e.id == book.id);
+                        _futureData = getAllBooks();
                       });
                       _message("Deleted", Colors.redAccent);
                     });

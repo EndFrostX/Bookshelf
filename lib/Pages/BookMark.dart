@@ -5,17 +5,16 @@ import 'package:bookshelf/repos/book_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
+import '../models/BookResponse.dart';
 import 'Detail.dart';
 import 'Edit.dart';
 
 class BookMarkPage extends StatefulWidget {
-
   @override
   _BookMarkPageState createState() => _BookMarkPageState();
 }
 
 class _BookMarkPageState extends State<BookMarkPage> {
-
   double _width;
   double _height;
   List<String> _id = [];
@@ -28,45 +27,58 @@ class _BookMarkPageState extends State<BookMarkPage> {
     super.initState();
     _id = BookMarkPreferences.getBookID() ?? [];
     _futureData = getAllBooks();
-    print(_id);
-
   }
 
   var _scaffoldKey = GlobalKey<ScaffoldState>();
-  void _message(String text, Color color){
-    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(content: Text(text), backgroundColor: color,));
+
+  void _message(String text, Color color) {
+    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(
+      content: Text(text),
+      backgroundColor: color,
+    ));
   }
+
   @override
   Widget build(BuildContext context) {
     _width = MediaQuery.of(context).size.width;
     _height = MediaQuery.of(context).size.height;
     return Scaffold(
       key: _scaffoldKey,
-      appBar: _myAppBar,
       body: _futureBuilder,
     );
   }
-  get _myAppBar{
-    return AppBar(
-      title: Text("hi"),
-    );
-  }
+
   get _futureBuilder {
-    if(_id.isEmpty)
-    {
-      return Center(child: Container(child: Text("You haven't bookmark anything yet.",style: TextStyle(color: Colors.grey, fontSize: 16),),),);
-    }
-    else{
-      return FutureBuilder(
+    if (_id.isEmpty) {
+      return Center(
+        child: Container(
+          child: Text(
+            "You haven't bookmark anything yet.",
+            style: TextStyle(color: Colors.grey, fontSize: 16),
+          ),
+        ),
+      );
+    } else {
+      return FutureBuilder<BookResponse>(
         future: _futureData,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done)
-          {
+          if (snapshot.connectionState == ConnectionState.done) {
             _data = snapshot.data.data;
-            return _myBody;
-          }
-          else {
-            return Center(child: CircularProgressIndicator());
+            if (_data.isNotEmpty) {
+              return _myBody;
+            }
+            else{
+              return Center(
+                child: Container(
+                  child: Text(
+                    "You haven't bookmark anything yet.",
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                ),
+              );
+            }
+          } else {
+            return Center(child: RefreshProgressIndicator());
           }
         },
       );
@@ -77,7 +89,7 @@ class _BookMarkPageState extends State<BookMarkPage> {
     return ListView.builder(
       itemCount: _data.length,
       itemBuilder: (context, index) {
-        if(_id.contains(_data[index].id.toString())){
+        if (_id.contains(_data[index].id.toString())) {
           if (index < _data.length - 1) {
             return Column(
               children: [
@@ -87,8 +99,7 @@ class _BookMarkPageState extends State<BookMarkPage> {
             );
           }
           return _myContainerList(_data[index]);
-        }
-        else{
+        } else {
           return Text("");
         }
       },
@@ -112,8 +123,7 @@ class _BookMarkPageState extends State<BookMarkPage> {
         ),
       ),
       onTap: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(
+        Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => DetailPage(book),
         ));
       },
@@ -147,8 +157,7 @@ class _BookMarkPageState extends State<BookMarkPage> {
         ),
       ),
       onTap: () {
-        Navigator.of(context)
-            .push(PageTransition(
+        Navigator.of(context).push(PageTransition(
           child: DetailPage(book),
           type: PageTransitionType.rightToLeftWithFade,
         ));
@@ -161,11 +170,11 @@ class _BookMarkPageState extends State<BookMarkPage> {
 
   _containerText(Book book) {
     return Container(
-      padding: EdgeInsets.only(left: 10),
+      padding: EdgeInsets.only(left: 10, top: 3, bottom: 3),
       width: _width * 0.45,
-      height: _height * 0.3,
+      height: _height * 0.35,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -176,29 +185,52 @@ class _BookMarkPageState extends State<BookMarkPage> {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(
-            height: 5,
-          ),
-          Text(
-            book.author,
-            style: TextStyle(
-              fontSize: 14,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    "category: ",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    book.category.name,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                book.description,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
           Row(
             children: [
-              Text(
-                "category: ",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-                overflow: TextOverflow.ellipsis,
+              Icon(
+                Icons.remove_red_eye,
+                size: 17,
               ),
               Text(
-                book.category.name,
+                _viewCalculator(book.views),
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).primaryColor,
@@ -206,24 +238,6 @@ class _BookMarkPageState extends State<BookMarkPage> {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-          ),
-          Text(
-            "published ${book.published}",
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            book.description,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.grey,
-            ),
-            maxLines: 4,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -236,21 +250,25 @@ class _BookMarkPageState extends State<BookMarkPage> {
     return InkWell(
       child: Container(
           alignment: Alignment.center,
-          child: bookmark ? Icon(Icons.check, color: Colors.lightGreen,)
-              : Icon(Icons.bookmark, color: Colors.amber,)
-      ),
-      onTap: () async{
+          child: bookmark
+              ? Icon(
+                  Icons.check,
+                  color: Colors.lightGreen,
+                )
+              : Icon(
+                  Icons.bookmark,
+                  color: Colors.amber,
+                )),
+      onTap: () async {
         //if false do this
-        if(!bookmark){
+        if (!bookmark) {
           setState(() {
             _id.add(book.id.toString());
           });
           await BookMarkPreferences.setBookID(_id);
           _message("Added to bookmark", Colors.lightGreen);
-
-        }
-        else{
-          setState((){
+        } else {
+          setState(() {
             _id.remove(book.id.toString());
           });
           await BookMarkPreferences.setBookID(_id);
@@ -274,7 +292,7 @@ class _BookMarkPageState extends State<BookMarkPage> {
               ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor:
-                    MaterialStateProperty.all<Color>(Colors.grey),
+                        MaterialStateProperty.all<Color>(Colors.grey),
                   ),
                   child: Text("Cancel"),
                   onPressed: () {
@@ -298,14 +316,16 @@ class _BookMarkPageState extends State<BookMarkPage> {
                       refresh();
                     });
                   }),
-                  _contentDialogue("Removed from bookmark", Icons.delete, function: () {
+                  _contentDialogue("Removed from bookmark", Icons.delete,
+                      function: () {
                     Navigator.of(context).pop();
                     setState(() {
                       _id.remove(book.id.toString());
                     });
-                     BookMarkPreferences.setBookID(_id).then((value){
-                       _message("Successfully removed from bookmark", Colors.lightGreen);
-                     });
+                    BookMarkPreferences.setBookID(_id).then((value) {
+                      _message("Successfully removed from bookmark",
+                          Colors.lightGreen);
+                    });
                   }),
                 ],
               ),
@@ -351,5 +371,14 @@ class _BookMarkPageState extends State<BookMarkPage> {
     setState(() {
       _futureData = getAllBooks();
     });
+  }
+
+  String _viewCalculator(int views) {
+    if (views >= 1000) {
+      double calView = views / 1000;
+      return " ${calView.toStringAsFixed(2)}k";
+    } else {
+      return " ${views}";
+    }
   }
 }

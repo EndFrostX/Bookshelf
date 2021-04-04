@@ -163,7 +163,7 @@ class _HomeState extends State<Home> {
   _myContainerList(Book book) {
     return InkWell(
       child: Container(
-        height: _height * 0.3,
+        height: _height * 0.2,
         width: _width,
         margin: EdgeInsets.zero,
         padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
@@ -333,7 +333,7 @@ class _HomeState extends State<Home> {
           await BookMarkPreferences.setBookID(_saved);
           _message("Remove from bookmark", Colors.lightGreen);
         }
-        print(_saved);
+
       },
     );
   }

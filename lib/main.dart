@@ -8,7 +8,7 @@ import 'package:page_transition/page_transition.dart';
 import 'Class/BookMarkPreferences.dart';
 import 'Pages/Home.dart';
 
-Future main() async{
+Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await BookMarkPreferences.init();
   runApp(MyApp());
@@ -18,14 +18,48 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "BookShelf",
+      title: "Bookshelf",
       theme: ThemeData(
         primaryColor: Colors.deepOrange,
         accentColor: Colors.deepOrange,
-
       ),
       debugShowCheckedModeBanner: false,
-      home: MainPage(),
+      home: SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    Future.delayed(Duration(seconds: 5), () {
+      Navigator.of(context).pushReplacement(
+        PageTransition(child: MainPage(), type: PageTransitionType.fade),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+          image: NetworkImage(
+              "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"),
+          fit: BoxFit.cover,
+        )),
+      ),
     );
   }
 }
@@ -44,7 +78,7 @@ class _MainPageState extends State<MainPage> {
   ];
 
   List<String> _allPagesString = [
-    "BookShlef",
+    "Home",
     "Category",
     "Bookmark",
     "Privacy & Policy",
@@ -66,8 +100,7 @@ class _MainPageState extends State<MainPage> {
                   ]),
                   image: DecorationImage(
                     image: NetworkImage(
-                        "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"
-                  ),
+                        "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"),
                     fit: BoxFit.cover,
                   )),
               child: Container(),
@@ -129,7 +162,8 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(_allPagesString[_currentPage],
+        title: Text(
+          _allPagesString[_currentPage],
         ),
       ),
       drawer: _myDrawer,
