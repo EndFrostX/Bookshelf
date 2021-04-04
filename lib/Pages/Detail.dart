@@ -1,34 +1,57 @@
 import 'package:bookshelf/Pages/Edit.dart';
 import 'package:bookshelf/models/Book.dart';
+import 'package:bookshelf/models/BookResponse.dart';
 import 'package:bookshelf/repos/book_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'Category.dart';
-
 class DetailPage extends StatefulWidget {
-  final Book book;
-
   DetailPage(this.book);
+
+  Book book;
 
   @override
   _DetailPageState createState() => _DetailPageState();
 }
 
 class _DetailPageState extends State<DetailPage> {
+  bool _loading = false;
+  Book currentBook;
+
+  _increaseView() async {
+    Book _item = currentBook;
+    _item.views++;
+    await updateBook(_item);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      currentBook = widget.book;
+    });
+
+    _increaseView();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _myAppBar,
-      body: _myBody,
+      body: _loading ? Center(child: CircularProgressIndicator()) : _myBody,
     );
   }
 
   get _readButton {
     return Container(
       child: ElevatedButton.icon(
+        style: ButtonStyle(
+          backgroundColor:
+              MaterialStateProperty.all<Color>(Theme.of(context).primaryColor),
+        ),
         icon: Icon(Icons.open_in_new_rounded),
         label: Text("Read Book"),
         onPressed: () {
@@ -40,22 +63,22 @@ class _DetailPageState extends State<DetailPage> {
 
   get _myAppBar {
     return AppBar(
-      title: Text(widget.book.title),
+      centerTitle: true,
+      title: Text("Book Details"),
       actions: [
         IconButton(
           icon: Icon(Icons.edit),
           onPressed: () {
-            Navigator.of(context).push(
-              PageTransition(
-                child: EditPage(widget.book),
-                type: PageTransitionType.bottomToTop,
-              ),
-            );
+            Navigator.of(context)
+                .push(
+                  MaterialPageRoute(builder: (_) => EditPage(currentBook)),
+                )
+                .then((value) => _refresh());
           },
         ),
         IconButton(
           icon: Icon(Icons.delete),
-          color: Colors.red[500],
+          color: Colors.white,
           onPressed: () {
             showDialog(
               context: context,
@@ -123,7 +146,7 @@ class _DetailPageState extends State<DetailPage> {
                                     primary: Colors.red,
                                   ),
                                   onPressed: () {
-                                    deleteBook(widget.book);
+                                    deleteBook(currentBook);
                                     Navigator.of(context).pop();
                                     Navigator.of(context).pop();
                                   },
@@ -154,8 +177,12 @@ class _DetailPageState extends State<DetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            _bookCoverPDF,
+            SizedBox(
+              height: 10,
+            ),
             Text(
-              widget.book.title,
+              currentBook.title,
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
@@ -174,7 +201,7 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                 ),
                 Text(
-                  "${widget.book.author}",
+                  "${currentBook.author}",
                   style: TextStyle(
                     fontSize: 16,
                   ),
@@ -191,7 +218,7 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                 ),
                 Text(
-                  "${widget.book.category.name}",
+                  "${currentBook.category.name}",
                   style: TextStyle(
                     fontSize: 16,
                     color: Theme.of(context).primaryColor,
@@ -209,7 +236,7 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                 ),
                 Text(
-                  "${widget.book.published}",
+                  "${currentBook.published}",
                   style: TextStyle(
                     fontSize: 16,
                   ),
@@ -220,7 +247,7 @@ class _DetailPageState extends State<DetailPage> {
               height: 10,
             ),
             Text(
-              widget.book.description,
+              currentBook.description,
               style: TextStyle(
                 fontSize: 18,
               ),
@@ -232,7 +259,7 @@ class _DetailPageState extends State<DetailPage> {
                   Container(
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color: Colors.grey[500],
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(20),
                         bottomLeft: Radius.circular(20),
@@ -241,16 +268,19 @@ class _DetailPageState extends State<DetailPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+
                         Text(
                           "pages: ",
                           style: TextStyle(
                             color: Colors.white,
+                            fontSize: 12,
                           ),
                         ),
                         Text(
-                          "${widget.book.pages}",
+                          "${currentBook.pages}",
                           style: TextStyle(
                             color: Colors.white,
+                            fontSize: 12,
                           ),
                         ),
                       ],
@@ -263,7 +293,7 @@ class _DetailPageState extends State<DetailPage> {
                   Container(
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.green,
+                      color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.only(
                         topRight: Radius.circular(20),
                         bottomRight: Radius.circular(20),
@@ -271,17 +301,18 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                     child: Row(
                       children: [
-                        Text(
-                          "views: ",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
+                        Icon(
+                          Icons.remove_red_eye,
+                          size: 17,
+                          color: Colors.white,
                         ),
                         Text(
-                          "${widget.book.views}",
+                          _viewCalculator(currentBook.views),
                           style: TextStyle(
+                            fontSize: 12,
                             color: Colors.white,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -311,14 +342,38 @@ class _DetailPageState extends State<DetailPage> {
             decoration: BoxDecoration(
                 image: DecorationImage(
               image: NetworkImage(
-                  "https://149349728.v2.pressablecdn.com/wp-content/uploads/2019/08/The-Crying-Book-by-Heather-Christie-1.jpg"),
+                  "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"),
               fit: BoxFit.cover,
             )),
           )),
     );
   }
 
-  void _launchURL() async => await canLaunch(widget.book.pdfUrl)
-      ? await launch(widget.book.pdfUrl)
-      : throw 'Could not launch ${widget.book.pdfUrl}';
+  void _refresh() async {
+    _loading = true;
+    await getAllBooks().then((value) {
+      setState(() {
+        currentBook = value.data.where((e) => e.id == widget.book.id).single;
+      });
+      _loading = false;
+    });
+  }
+
+  void _launchURL() async => await canLaunch(currentBook.pdfUrl)
+      ? await launch(currentBook.pdfUrl)
+      : ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text("Could not launch (${currentBook.pdfUrl})"),
+          ),
+        );
+
+  String _viewCalculator(int views) {
+    if (views >= 1000) {
+      double calView = views / 1000;
+      return " ${calView.toStringAsFixed(2)}k";
+    } else {
+      return " ${views}";
+    }
+  }
 }

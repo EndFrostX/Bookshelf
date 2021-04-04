@@ -16,8 +16,8 @@ class BookCategory {
     this.name,
   });
 
-  final int id;
-  final String name;
+  int id;
+  String name;
 
   factory BookCategory.fromJson(Map<String, dynamic> json) => BookCategory(
         id: json["id"],
