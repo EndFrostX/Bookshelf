@@ -1,6 +1,7 @@
 import 'package:bookshelf/Pages/BookMark.dart';
 import 'package:bookshelf/Pages/Category.dart';
 import 'package:bookshelf/models/Book.dart';
+import 'package:bookshelf/models/BookResponse.dart';
 import 'package:bookshelf/repos/book_repo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,31 +21,32 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   double _width;
   double _height;
-  Future<dynamic> _futureData;
+  Future<BookResponse> _futureData;
   List<Book> _data;
   var _saved = Set<Book>();
 
   var _scaffoldKey = GlobalKey<ScaffoldState>();
-  void _message(String text, Color color){
-    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(content: Text(text), backgroundColor: color,));
+
+  void _message(String text, Color color) {
+    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(
+      content: Text(text),
+      backgroundColor: color,
+    ));
   }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _futureData = getAllBooks();
-
+    setState(() {
+      _futureData = getAllBooks();
+    });
   }
+
   @override
   Widget build(BuildContext context) {
-    _height = MediaQuery
-        .of(context)
-        .size
-        .height;
-    _width = MediaQuery
-        .of(context)
-        .size
-        .width;
+    _height = MediaQuery.of(context).size.height;
+    _width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -70,10 +72,8 @@ class _HomeState extends State<Home> {
                   )),
               child: Container()),
           _myDrawerList(Icons.home, "General", colored: Colors.grey),
-          _myDrawerList(Icons.category, "Category",
-              page: CategoryPage()),
-          _myDrawerList(Icons.bookmark, "BookMark",
-              page: BookMarkPage()),
+          _myDrawerList(Icons.category, "Category", page: CategoryPage()),
+          _myDrawerList(Icons.bookmark, "BookMark", page: BookMarkPage()),
           _myDrawerList(Icons.policy, "Privacy & Policy",
               page: PrivacyPolicyPage()),
         ],
@@ -81,14 +81,12 @@ class _HomeState extends State<Home> {
     );
   }
 
-  _myDrawerList(IconData icon, String text, {Widget page, Color colored = Colors.amber}) {
+  _myDrawerList(IconData icon, String text,
+      {Widget page, Color colored = Colors.amber}) {
     return InkWell(
         child: Container(
           margin: EdgeInsets.only(bottom: 10),
-          width: MediaQuery
-              .of(context)
-              .size
-              .width,
+          width: MediaQuery.of(context).size.width,
           height: 60,
           padding: EdgeInsets.all(10),
           child: Row(
@@ -103,17 +101,17 @@ class _HomeState extends State<Home> {
               ),
               Expanded(
                   child: Container(
-                    padding: EdgeInsets.only(right: 10),
-                    alignment: Alignment.centerRight,
-                    child: Icon(Icons.arrow_forward, color: colored),
-                  )),
+                padding: EdgeInsets.only(right: 10),
+                alignment: Alignment.centerRight,
+                child: Icon(Icons.arrow_forward, color: colored),
+              )),
             ],
           ),
         ),
-      onTap: () {
-        Navigator.of(context).push(PageTransition(child: page, type: PageTransitionType.rightToLeftWithFade));
-      }
-    );
+        onTap: () {
+          Navigator.of(context).push(PageTransition(
+              child: page, type: PageTransitionType.rightToLeftWithFade));
+        });
   }
 
   get _myAppBar {
@@ -135,45 +133,43 @@ class _HomeState extends State<Home> {
   }
 
   get _myBody {
-    print(_futureData);
-    if(_futureData == null){
-      return Center(child: Container(
-        child: Text("It seems there's no upload books right now, "
-            "please come back another time", style: TextStyle(color: Colors.grey.withOpacity(0.4)))
-      ));
-    }
-    else{
-    return FutureBuilder(
-        future: _futureData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if(snapshot.data == null){
-              return Center(child: Container(
-                  width: _width * 0.8,
-                  child: Text("It seems there's no uploaded book right now, "
-                  "please come back another time", style: TextStyle(color: Colors.grey, fontSize: 16))));
-              }
-            else {
-              _data = snapshot.data.data;
-              return _myListView;
-            }
+    return FutureBuilder<BookResponse>(
+      future: _futureData,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          _data = snapshot.data.data;
+
+          if (_data.isEmpty) {
+            return Center(
+              child: Container(
+                width: _width * 0.8,
+                child: Text(
+                  "It seems there's no uploaded book right now, "
+                  "please come back another time",
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                ),
+              ),
+            );
+          } else {
+            return _myListView;
           }
-          else {
-            return CircularProgressIndicator();
-          }
-        });
-    }
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      },
+    );
   }
 
   get _myListView {
     return RefreshIndicator(
       child: ListView.builder(
-          physics: BouncingScrollPhysics(),
-          itemCount: _data.length,
-          itemBuilder: (context, index) {
-            return _buildListView(_data[index]);
-          }),
-      onRefresh: ()async{
+        physics: BouncingScrollPhysics(),
+        itemCount: _data.length,
+        itemBuilder: (context, index) {
+          return Text(_data[index].title);
+        },
+      ),
+      onRefresh: () async {
         setState(() {
           _futureData = getAllBooks();
         });
@@ -181,18 +177,18 @@ class _HomeState extends State<Home> {
     );
   }
 
-  _buildListView(dynamic book) {
-    return Container(
-      width: _width,
-      child: ListView(
-        shrinkWrap: true,
-        physics: BouncingScrollPhysics(),
-        children: [
-          _myContainerList(book),
-        ],
-      ),
-    );
-  }
+  // _buildListView(dynamic book) {
+  //   return Container(
+  //     width: _width,
+  //     child: ListView(
+  //       shrinkWrap: true,
+  //       physics: BouncingScrollPhysics(),
+  //       children: [
+  //         _myContainerList(book),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   _myContainerList(Book book) {
     return InkWell(
@@ -205,7 +201,8 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _containerPicture(book.pdfUrl, book),
-            _containerText(title: book.title,
+            _containerText(
+                title: book.title,
                 author: book.author,
                 description: book.description,
                 published: book.published),
@@ -213,10 +210,12 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      onTap: (){
-        Navigator.of(context).push(PageTransition(child: DetailPage(book), type: PageTransitionType.rightToLeftWithFade));
+      onTap: () {
+        Navigator.of(context).push(PageTransition(
+            child: DetailPage(book),
+            type: PageTransitionType.rightToLeftWithFade));
       },
-      onLongPress: (){
+      onLongPress: () {
         _showDialogue(book);
       },
     );
@@ -244,23 +243,20 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
-      onTap: (){
+      onTap: () {
         Navigator.of(context).push(PageTransition(
           child: DetailPage(book),
           type: PageTransitionType.rightToLeftWithFade,
         ));
       },
-      onLongPress: (){
+      onLongPress: () {
         _showDialogue(book);
       },
     );
   }
 
   _containerText(
-      {String title,
-      String author,
-      String description,
-        String published}) {
+      {String title, String author, String description, String published}) {
     return Container(
       padding: EdgeInsets.only(left: 10),
       width: _width * 0.45,
@@ -284,12 +280,18 @@ class _HomeState extends State<Home> {
       child: Expanded(
         child: Container(
           alignment: Alignment.center,
-          child: _bookmark ?
-          Icon(Icons.bookmark, color: Colors.amber,) :
-          Icon(Icons.check, color: Colors.lightGreen,),
+          child: _bookmark
+              ? Icon(
+                  Icons.bookmark,
+                  color: Colors.amber,
+                )
+              : Icon(
+                  Icons.check,
+                  color: Colors.lightGreen,
+                ),
         ),
       ),
-      onTap: (){
+      onTap: () {
         _saved.add(book);
         _message("Added to bookmark", Colors.lightGreen);
         _bookmark = !_bookmark;
@@ -298,47 +300,50 @@ class _HomeState extends State<Home> {
   }
 
   _showDialogue(Book book) {
-    showDialog(context: context, builder: (context) {
-      return AlertDialog(
-        title: Text("Option"),
-        backgroundColor: Colors.white,
-        actions: [
-          ElevatedButton(child: Text("Cancel"), onPressed: () {
-            Navigator.of(context).pop();
-          })
-        ],
-        content: Container(
-          height: 150,
-          width: 250,
-          child: Column(
-            children: [
-              _contentDialogue("Edit", Icons.edit, function: (){
-                Navigator.of(context).push(PageTransition(child: EditPage(book), type: PageTransitionType.rightToLeftWithFade));
-                Navigator.of(context).pop();
-              }),
-              _contentDialogue("Delete", Icons.delete, function: (){
-                deleteBook(book);
-                _message("Deleted", Colors.redAccent);
-                setState(() {
-                  _futureData = getAllBooks();
-                });
-                Navigator.of(context).pop();
-              }),
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Option"),
+            backgroundColor: Colors.white,
+            actions: [
+              ElevatedButton(
+                  child: Text("Cancel"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  })
             ],
-          ),
-        ),
-      );
-    });
+            content: Container(
+              height: 150,
+              width: 250,
+              child: Column(
+                children: [
+                  _contentDialogue("Edit", Icons.edit, function: () {
+                    Navigator.of(context).push(PageTransition(
+                        child: EditPage(book),
+                        type: PageTransitionType.rightToLeftWithFade));
+                    Navigator.of(context).pop();
+                  }),
+                  _contentDialogue("Delete", Icons.delete, function: () {
+                    deleteBook(book);
+                    _message("Deleted", Colors.redAccent);
+                    setState(() {
+                      _futureData = getAllBooks();
+                    });
+                    Navigator.of(context).pop();
+                  }),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   _contentDialogue(String text, IconData icon, {Function function}) {
     return InkWell(
       child: Center(
         child: Container(
-          width: MediaQuery
-              .of(context)
-              .size
-              .width,
+          width: MediaQuery.of(context).size.width,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -349,7 +354,7 @@ class _HomeState extends State<Home> {
         ),
       ),
       //onTap: onTap,
-        onTap: function,
+      onTap: function,
     );
   }
 }

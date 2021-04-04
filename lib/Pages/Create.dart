@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bookshelf/models/Book.dart';
 import 'package:bookshelf/models/BookCategory.dart';
 import 'package:bookshelf/models/BookCategoryResponse.dart';
@@ -35,16 +37,26 @@ class _CreatePageState extends State<CreatePage> {
       _fetchCategories = getAllBookCategories();
     });
   }
-  void _message(String text, Color color){
-    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(content: Text(text), backgroundColor: color,));
+
+  void _message(String text, Color color) {
+    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(
+      content: Text(text),
+      backgroundColor: color,
+    ));
   }
+
   @override
   Widget build(BuildContext context) {
     _width = MediaQuery.of(context).size.width;
     return Scaffold(
       key: _scaffoldKey,
       appBar: _myAppBar,
-      body: _myBody,
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: _myBody,
+      ),
     );
   }
 
@@ -70,34 +82,31 @@ class _CreatePageState extends State<CreatePage> {
 
   get _contentCategory {
     return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      margin: EdgeInsets.only(bottom: 20),
       width: _width * 0.8,
       decoration: BoxDecoration(
-        border: Border.all(),
-          borderRadius: BorderRadius.circular(27)),
-      child: Column(
-        children: [
-          // Text("There are ${_allCategories.length} :"),
-          SearchableDropdown.single(
-            items: _allCategories.map((BookCategory category) {
-              //print(category.name);
-              return new DropdownMenuItem(
-                child: Text(category.name),
-                value: category,
-              );
-            }).toList(),
-            isExpanded: true,
-            searchHint: new Text("Select"),
-            label: Padding(
-              padding: const EdgeInsets.only(left: 20, top: 20),
-              child: Text("Category"),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _tempHolderOfCategory = value;
-              });
-            },
-          ),
-        ],
+        borderRadius: BorderRadius.circular(27),
+        border: Border.all(
+          color: Colors.grey,
+        ),
+      ),
+      child: SearchableDropdown.single(
+        items: _allCategories.map((BookCategory category) {
+          return new DropdownMenuItem(
+            child: Text(category.name),
+            value: category,
+          );
+        }).toList(),
+        isExpanded: true,
+        searchHint: new Text("search category"),
+        hint: "Choose your category",
+        onChanged: (value) {
+          setState(() {
+            _tempHolderOfCategory = value;
+            _categoryInput = _tempHolderOfCategory.id;
+          });
+        },
       ),
     );
   }
@@ -132,55 +141,46 @@ class _CreatePageState extends State<CreatePage> {
               myController: _pagesController,
               keyboard: TextInputType.numberWithOptions()),
           _futureBuilder,
-          ElevatedButton(
-            child: Text("Upload"),
-            onPressed: () {
-              _auth;
-            },
+          Container(
+            width: _width / 1.3,
+            child: ElevatedButton(
+              child: Text("Upload"),
+              onPressed: () {
+                _auth();
+              },
+            ),
           )
         ],
       ),
     );
   }
-  get _auth{
 
-    List<dynamic> rise;
-    rise = _tempHolderOfCategory.toString().split(" ");
-    _categoryInput = int.parse(rise.last);
-    if(_pdfController.text.trim().isNotEmpty ||
-    _titleController.text.trim().isNotEmpty ||
-    _authorController.text.trim().isNotEmpty ||
-    _descriptionController.text.trim().isNotEmpty ||
-    _categoryInput != null){
+  _auth() {
+    if (_pdfController.text.isNotEmpty &&
+        _titleController.text.isNotEmpty &&
+        _authorController.text.isNotEmpty &&
+        _descriptionController.text.isNotEmpty) {
       Book book = Book(
-        id: 0,
         title: _pdfController.text.trim(),
         author: _authorController.text.trim(),
         description: _descriptionController.text.trim(),
         pdfUrl: _pdfController.text.trim(),
         categoryId: _categoryInput,
-        published:_publishedController.text.trim(),
-        page: int.parse(_pagesController.text.trim()),
+        published: _publishedController.text.trim(),
+        pages: int.parse(_pagesController.text.trim()),
       );
-      insertBook(book).then((value){
-        if(!value.error){
+
+      insertBook(book).then((value) {
+        if (!value.error) {
           _message(value.message, Colors.lightGreen);
-          _pdfController.text = null;
-          _authorController.text = null;
-          _descriptionController.text = null;
-          _pdfController.text = null;
-          _categoryInput = null;
-          _publishedController.text = null;
-          _pagesController.text = null;
           Navigator.of(context).pop();
-        }
-        else{
+        } else {
           _message(value.message, Colors.redAccent);
         }
       });
-    }
-    else{
-      _message("Please fill all the fields before proceeding", Colors.redAccent);
+    } else {
+      _message(
+          "Please fill all the fields before proceeding", Colors.redAccent);
     }
   }
 

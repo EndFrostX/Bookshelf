@@ -19,8 +19,9 @@ class Book {
     this.pdfUrl,
     this.categoryId,
     this.published,
-    this.page,
-    this.view = 0,
+    this.pages,
+    this.views = 0,
+    this.createdAt,
   });
 
   final int id;
@@ -30,8 +31,9 @@ class Book {
   final String pdfUrl;
   final int categoryId;
   final String published;
-  final int page;
-  final int view;
+  final int pages;
+  final int views;
+  final String createdAt;
 
   factory Book.fromJson(Map<String, dynamic> json) => Book(
         id: json["id"] == null ? null : json["id"],
@@ -41,19 +43,19 @@ class Book {
         pdfUrl: json["pdfUrl"] == null ? null : json["pdfUrl"],
         categoryId: json["category_id"] == null ? null : json["category_id"],
         published: json["published"] == null ? null : json["published"],
-        page: json["page"] == null ? null : json["page"],
-        view: json["view"] == null ? null : json["view"],
+        pages: json["page"] == null ? null : json["page"],
+        views: json["view"] == null ? null : json["view"],
+        createdAt: json["createdAt"] == null ? null : json["createdAt"],
       );
 
   Map<String, dynamic> toJson() => {
-        "id": id == null ? null : id,
-        "title": title == null ? null : title,
-        "author": author == null ? null : author,
-        "description": description == null ? null : description,
-        "pdfUrl": pdfUrl == null ? null : pdfUrl,
-        "category_id": categoryId == null ? null : categoryId,
-        "published": published == null ? null : published,
-        "page": page == null ? null : page,
-        "view": view == null ? null : view,
+        "title": title,
+        "author": author,
+        "description": description,
+        "pdfUrl": pdfUrl,
+        "category_id": categoryId,
+        "published": published,
+        "pages": pages,
+        "createdAt": createdAt != null ? createdAt : DateTime.now().toString(),
       };
 }
