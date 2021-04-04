@@ -1,7 +1,6 @@
 import 'package:bookshelf/models/Book.dart';
 import 'package:bookshelf/models/BookCategory.dart';
 import 'package:bookshelf/models/BookCategoryResponse.dart';
-import 'package:bookshelf/models/BookResponse.dart';
 import 'package:bookshelf/repos/book_category_repo.dart';
 import 'package:bookshelf/repos/book_repo.dart';
 import 'package:flutter/material.dart';

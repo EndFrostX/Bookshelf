@@ -33,7 +33,7 @@ class Book {
   String published;
   int pages;
   int views;
-  DateTime createdAt;
+  String createdAt;
   int categoryId;
   BookCategory category;
 
@@ -46,7 +46,7 @@ class Book {
         published: json["published"],
         pages: json["pages"],
         views: json["views"],
-        createdAt: DateTime.parse(json["createdAt"]),
+        createdAt: json["createdAt"],
         categoryId: json["category_id"],
         category: BookCategory.fromJson(json["category"]),
       );
@@ -60,7 +60,7 @@ class Book {
         "published": published,
         "pages": pages,
         "views": views,
-        "createdAt": createdAt.toIso8601String(),
+        "createdAt": DateTime.now().toString(),
         "category_id": categoryId,
       };
 }

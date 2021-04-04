@@ -161,7 +161,7 @@ class _CreatePageState extends State<CreatePage> {
         _authorController.text.isNotEmpty &&
         _descriptionController.text.isNotEmpty) {
       Book book = Book(
-        title: _pdfController.text.trim(),
+        title: _titleController.text.trim(),
         author: _authorController.text.trim(),
         description: _descriptionController.text.trim(),
         pdfUrl: _pdfController.text.trim(),

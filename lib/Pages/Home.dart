@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:bookshelf/Pages/BookMark.dart';
 import 'package:bookshelf/Pages/Category.dart';
 import 'package:bookshelf/models/Book.dart';
@@ -38,9 +40,7 @@ class _HomeState extends State<Home> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    setState(() {
-      _futureData = getAllBooks();
-    });
+    refresh();
   }
 
   @override
@@ -64,13 +64,26 @@ class _HomeState extends State<Home> {
             return Center(
               child: Container(
                 width: _width * 0.8,
-                child: Text(
-                  "It seems there's no uploaded book right now, "
-                  "please come back another time",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
-                  ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "It seems there's no uploaded book right now please come back another time",
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 13,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.refresh),
+                      label: Text("Refresh"),
+                      onPressed: () {
+                        refresh();
+                      },
+                    ),
+                  ],
                 ),
               ),
             );
@@ -87,32 +100,27 @@ class _HomeState extends State<Home> {
   get _myListView {
     return RefreshIndicator(
       child: ListView.builder(
-        physics: BouncingScrollPhysics(),
         itemCount: _data.length,
         itemBuilder: (context, index) {
-          return Text(_data[index].title);
+          if (index < _data.length - 1) {
+            return Column(
+              children: [
+                _myContainerList(_data[index]),
+                Divider(),
+              ],
+            );
+          }
+          return _myContainerList(_data[index]);
         },
       ),
-      onRefresh: () async {
+      onRefresh: () {
         setState(() {
           _futureData = getAllBooks();
         });
+        return _futureData;
       },
     );
   }
-
-  // _buildListView(dynamic book) {
-  //   return Container(
-  //     width: _width,
-  //     child: ListView(
-  //       shrinkWrap: true,
-  //       physics: BouncingScrollPhysics(),
-  //       children: [
-  //         _myContainerList(book),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   _myContainerList(Book book) {
     return InkWell(
@@ -124,20 +132,20 @@ class _HomeState extends State<Home> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _containerPicture(book.pdfUrl, book),
-            _containerText(
-                title: book.title,
-                author: book.author,
-                description: book.description,
-                published: book.published),
+            _containerPicture(book),
+            _containerText(book),
             _containerIcon(book),
           ],
         ),
       ),
       onTap: () {
-        Navigator.of(context).push(PageTransition(
-            child: DetailPage(book),
-            type: PageTransitionType.rightToLeftWithFade));
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+          builder: (_) => DetailPage(book),
+        ))
+            .then((value) {
+          refresh();
+        });
       },
       onLongPress: () {
         _showDialogue(book);
@@ -145,7 +153,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  _containerPicture(String img, Book book) {
+  _containerPicture(Book book) {
     return InkWell(
       child: Card(
         elevation: 10,
@@ -153,7 +161,7 @@ class _HomeState extends State<Home> {
           width: _width * 0.35,
           height: _height * 0.3,
           decoration: BoxDecoration(
-            color: Colors.red,
+            color: Theme.of(context).primaryColor,
             boxShadow: [
               BoxShadow(
                 color: Colors.blueAccent.withOpacity(0.2),
@@ -161,17 +169,22 @@ class _HomeState extends State<Home> {
               ),
             ],
             image: DecorationImage(
-              image: NetworkImage(img),
+              image: NetworkImage(
+                  "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"),
               fit: BoxFit.fitHeight,
             ),
           ),
         ),
       ),
       onTap: () {
-        Navigator.of(context).push(PageTransition(
+        Navigator.of(context)
+            .push(PageTransition(
           child: DetailPage(book),
           type: PageTransitionType.rightToLeftWithFade,
-        ));
+        ))
+            .then((value) {
+          refresh();
+        });
       },
       onLongPress: () {
         _showDialogue(book);
@@ -179,20 +192,72 @@ class _HomeState extends State<Home> {
     );
   }
 
-  _containerText(
-      {String title, String author, String description, String published}) {
+  _containerText(Book book) {
     return Container(
       padding: EdgeInsets.only(left: 10),
       width: _width * 0.45,
       height: _height * 0.3,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Title: $title"),
-          Text("Author: $author"),
-          Text("Published Date: $published"),
-          Text(description),
+          Text(
+            book.title,
+            style: TextStyle(
+              fontSize: 17,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
+            book.author,
+            style: TextStyle(
+              fontSize: 14,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Row(
+            children: [
+              Text(
+                "category: ",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                book.category.name,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).primaryColor,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+          Text(
+            "published ${book.published}",
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            book.description,
+            style: TextStyle(
+              fontSize: 10,
+              color: Colors.grey,
+            ),
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -201,19 +266,17 @@ class _HomeState extends State<Home> {
   _containerIcon(Book book) {
     bool _bookmark = false;
     return InkWell(
-      child: Expanded(
-        child: Container(
-          alignment: Alignment.center,
-          child: _bookmark
-              ? Icon(
-                  Icons.bookmark,
-                  color: Colors.amber,
-                )
-              : Icon(
-                  Icons.check,
-                  color: Colors.lightGreen,
-                ),
-        ),
+      child: Container(
+        alignment: Alignment.center,
+        child: _bookmark
+            ? Icon(
+                Icons.bookmark,
+                color: Colors.amber,
+              )
+            : Icon(
+                Icons.check,
+                color: Colors.lightGreen,
+              ),
       ),
       onTap: () {
         _saved.add(book);
@@ -243,18 +306,21 @@ class _HomeState extends State<Home> {
               child: Column(
                 children: [
                   _contentDialogue("Edit", Icons.edit, function: () {
-                    Navigator.of(context).push(PageTransition(
-                        child: EditPage(book),
-                        type: PageTransitionType.rightToLeftWithFade));
                     Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => EditPage(book),
+                      ),
+                    );
                   }),
                   _contentDialogue("Delete", Icons.delete, function: () {
-                    deleteBook(book);
-                    _message("Deleted", Colors.redAccent);
-                    setState(() {
-                      _futureData = getAllBooks();
+                    deleteBook(book).then((value) {
+                      setState(() {
+                        _data.removeWhere((e) => e.id == book.id);
+                      });
+                      _message("Deleted", Colors.redAccent);
+                      Navigator.of(context).pop();
                     });
-                    Navigator.of(context).pop();
                   }),
                 ],
               ),
@@ -280,5 +346,11 @@ class _HomeState extends State<Home> {
       //onTap: onTap,
       onTap: function,
     );
+  }
+
+  void refresh() {
+    setState(() {
+      _futureData = getAllBooks();
+    });
   }
 }
