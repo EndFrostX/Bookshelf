@@ -1,7 +1,7 @@
+import 'package:bookshelf/Pages/CategoryDetail.dart';
 import 'package:bookshelf/models/Book.dart';
 import 'package:bookshelf/models/BookCategory.dart';
 import 'package:bookshelf/models/BookCategoryResponse.dart';
-import 'package:bookshelf/models/BookResponse.dart';
 import 'package:bookshelf/repos/book_category_repo.dart';
 import 'package:bookshelf/repos/book_repo.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +26,9 @@ class _CategoryPageState extends State<CategoryPage> {
             return _categoryList;
           }
           return Center(
-            child: CircularProgressIndicator(),
+            child: RefreshProgressIndicator(
+              // valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+            ),
           );
         },
       ),
@@ -53,12 +55,9 @@ class _CategoryPageState extends State<CategoryPage> {
   _categoryItem(BookCategory item) {
     return InkWell(
       onTap: () {
-        List<Book> books =
-            _allBooks.where((book) => book.categoryId == item.id).toList();
-
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => CategoryDetailPage(category: item, books: books),
+            builder: (_) => CategoryDetailPage(category: item),
           ),
         );
       },
@@ -93,45 +92,5 @@ class _CategoryPageState extends State<CategoryPage> {
         _allBooks = value.data;
       });
     });
-  }
-}
-
-class CategoryDetailPage extends StatefulWidget {
-  CategoryDetailPage({this.category, this.books});
-
-  BookCategory category;
-  List<Book> books;
-
-  @override
-  _CategoryDetailPageState createState() => _CategoryDetailPageState();
-}
-
-class _CategoryDetailPageState extends State<CategoryDetailPage> {
-  get _buildBody {
-    if (widget.books.isNotEmpty) {
-      return Container(
-        child: ListView.builder(
-          itemCount: widget.books.length,
-          itemBuilder: (_, index) {
-            return ListTile(
-              title: Text(widget.books[index].category.name),
-            );
-          },
-        ),
-      );
-    }
-    return Center(
-      child: Text("Category ${widget.category.name} is empty!"),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.category.name),
-      ),
-      body: _buildBody,
-    );
   }
 }

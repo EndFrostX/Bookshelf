@@ -1,169 +1,109 @@
-import 'dart:ui';
-
-import 'package:bookshelf/Class/BookMarkPreferences.dart';
-import 'package:bookshelf/Pages/BookMark.dart';
-import 'package:bookshelf/Pages/Category.dart';
+import 'package:bookshelf/Pages/Detail.dart';
+import 'package:bookshelf/Pages/Edit.dart';
 import 'package:bookshelf/models/Book.dart';
+import 'package:bookshelf/models/BookCategory.dart';
 import 'package:bookshelf/models/BookResponse.dart';
 import 'package:bookshelf/repos/book_repo.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'Create.dart';
-import 'Detail.dart';
-import 'Edit.dart';
-import 'PrivacyPolicy.dart';
+class CategoryDetailPage extends StatefulWidget {
+  CategoryDetailPage({this.category});
 
-class Home extends StatefulWidget {
+  BookCategory category;
+
   @override
-  _HomeState createState() => _HomeState();
+  _CategoryDetailPageState createState() => _CategoryDetailPageState();
 }
 
-class _HomeState extends State<Home> {
+class _CategoryDetailPageState extends State<CategoryDetailPage> {
   double _width;
   double _height;
   Future<BookResponse> _futureData;
-  List<Book> _data = [];
-  List<String> _saved = [];
-  List<String> ree = [];
-  var _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  void _message(String text, Color color) {
-    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(
-      content: Text(text),
-      backgroundColor: color,
-    ));
-  }
+  List<Book> books;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _saved = BookMarkPreferences.getBookID() ?? [];
-    refresh();
+    setState(() {
+      _futureData = getAllBooks();
+    });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    _height = MediaQuery.of(context).size.height;
-    _width = MediaQuery.of(context).size.width;
-
-    return Scaffold(
-      key: _scaffoldKey,
-      body: _myBody,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).primaryColor,
-        onPressed: () {
-          Navigator.of(context)
-              .push(
-            MaterialPageRoute(
-              builder: (_) => CreatePage(),
-            ),
-          )
-              .then((value) {
-            if (value != null) {
-              refresh();
-            }
-          });
-        },
-        child: Container(
-          child: Icon(
-            Icons.upload_rounded,
-          ),
-        ),
-      ),
-    );
-  }
-
-  get _myBody {
+  get _buildBody {
     return FutureBuilder<BookResponse>(
       future: _futureData,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          _data = snapshot.data.data;
-          if (_data.isEmpty) {
-            return Center(
-              child: Container(
-                width: _width * 0.8,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: _width,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage("https://cdni.iconscout.com/illustration/premium/thumb/empty-mind-3428245-2902710.png"),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      "It seems there's no uploaded book right now please come back another time",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    ElevatedButton.icon(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Theme.of(context).primaryColor),
-                      ),
-                      icon: Icon(Icons.refresh),
-                      label: Text("Refresh"),
-                      onPressed: () {
-                        refresh();
-                      },
-                    ),
-                  ],
+      builder: (_,snapshot){
+        if(snapshot.connectionState == ConnectionState.done){
+          books = snapshot.data.data
+              .where((e) => e.categoryId == widget.category.id)
+              .toList();
+
+          if (books.isNotEmpty) {
+            return Container(
+              child: RefreshIndicator(
+                onRefresh: (){
+                  setState(() {
+                    _futureData = getAllBooks();
+                  });
+                  return _futureData;
+                },
+                child: ListView.builder(
+                  itemCount: books.length,
+                  itemBuilder: (_, index) {
+                    return _myContainerList(books[index]);
+                  },
                 ),
               ),
             );
-          } else {
-            return _myListView;
           }
-        } else {
-          return Center(child: RefreshProgressIndicator());
-        }
-      },
-    );
-  }
-
-  get _myListView {
-    return RefreshIndicator(
-      child: ListView.builder(
-        itemCount: _data.length,
-        itemBuilder: (context, index) {
-          if (index < _data.length - 1) {
-            return Column(
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _myContainerList(_data[index]),
-                Divider(),
+                Container(
+                  width: _width,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage("https://cdni.iconscout.com/illustration/premium/thumb/search-result-not-found-3428237-2902696.png"),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                Text("Category ${widget.category.name} is empty!"),
+                ElevatedButton.icon(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Theme.of(context).primaryColor),
+                  ),
+                  icon: Icon(Icons.refresh),
+                  label: Text("Refresh"),
+                  onPressed: () {
+                    setState(() {
+                      _futureData = getAllBooks();
+                    });
+                  },
+                ),
               ],
-            );
-          }
-          return _myContainerList(_data[index]);
-        },
-      ),
-      onRefresh: () {
-        setState(() {
-          _futureData = getAllBooks();
-        });
-        return _futureData;
+            ),
+          );
+        }
+        return Center(
+          child: RefreshProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+          ),
+        );
       },
     );
+
   }
 
   _myContainerList(Book book) {
     return InkWell(
       child: Container(
-        height: _height * 0.3,
+        height: _height * 0.2,
         width: _width,
         margin: EdgeInsets.zero,
         padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
@@ -172,7 +112,7 @@ class _HomeState extends State<Home> {
           children: [
             _containerPicture(book),
             _containerText(book),
-            Expanded(child: _containerIcon(book)),
+            _containerIcon(book),
           ],
         ),
       ),
@@ -182,7 +122,9 @@ class _HomeState extends State<Home> {
           builder: (_) => DetailPage(book),
         ))
             .then((value) {
-          refresh();
+          setState(() {
+            _futureData = getAllBooks();
+          });
         });
       },
       onLongPress: () {
@@ -221,7 +163,9 @@ class _HomeState extends State<Home> {
           type: PageTransitionType.rightToLeftWithFade,
         ))
             .then((value) {
-          refresh();
+          setState(() {
+            _futureData = getAllBooks();
+          });
         });
       },
       onLongPress: () {
@@ -234,7 +178,7 @@ class _HomeState extends State<Home> {
     return Container(
       padding: EdgeInsets.only(left: 10, top: 3, bottom: 3),
       width: _width * 0.45,
-      height: _height * 0.35,
+      height: _height * 0.3,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,32 +251,23 @@ class _HomeState extends State<Home> {
   }
 
   _containerIcon(Book book) {
-    bool bookmark = _saved.contains(book.id.toString());
-    //bool bookmark = false;
+    bool _bookmark = false;
     return InkWell(
       child: Container(
         alignment: Alignment.center,
-        child: bookmark ? Icon(Icons.check, color: Colors.lightGreen,)
-            : Icon(Icons.bookmark, color: Colors.amber,)
+        child: _bookmark
+            ? Icon(
+                Icons.bookmark,
+                color: Colors.amber,
+              )
+            : Icon(
+                Icons.check,
+                color: Colors.lightGreen,
+              ),
       ),
-      onTap: () async{
-        //if false do this
-        if(!bookmark){
-          setState(() {
-            _saved.add(book.id.toString());
-          });
-          await BookMarkPreferences.setBookID(_saved);
-          _message("Added to bookmark", Colors.lightGreen);
-
-        }
-        else{
-          setState((){
-            _saved.remove(book.id.toString());
-          });
-          await BookMarkPreferences.setBookID(_saved);
-          _message("Remove from bookmark", Colors.lightGreen);
-        }
-        print(_saved);
+      onTap: () {
+        _message("Added to bookmark", Colors.lightGreen);
+        _bookmark = !_bookmark;
       },
     );
   }
@@ -367,19 +302,17 @@ class _HomeState extends State<Home> {
                     Navigator.of(context).pop();
                     Navigator.of(context)
                         .push(
-                      MaterialPageRoute(
-                        builder: (_) => EditPage(book),
-                      ),
-                    )
-                        .then((value) {
-                      refresh();
-                    });
+                          MaterialPageRoute(
+                            builder: (_) => EditPage(book),
+                          ),
+                        )
+                        .then((value) {});
                   }),
                   _contentDialogue("Delete", Icons.delete, function: () {
                     Navigator.of(context).pop();
                     deleteBook(book).then((value) {
                       setState(() {
-                        _data.removeWhere((e) => e.id == book.id);
+                        _futureData = getAllBooks();
                       });
                       _message("Deleted", Colors.redAccent);
                     });
@@ -424,10 +357,24 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void refresh() {
-    setState(() {
-      _futureData = getAllBooks();
-    });
+  @override
+  Widget build(BuildContext context) {
+    _height = MediaQuery.of(context).size.height;
+    _width = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.category.name),
+      ),
+      body: _buildBody,
+    );
+  }
+
+  void _message(String text, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(text),
+      backgroundColor: color,
+    ));
   }
 
   String _viewCalculator(int views) {
@@ -438,4 +385,5 @@ class _HomeState extends State<Home> {
       return " ${views}";
     }
   }
+
 }

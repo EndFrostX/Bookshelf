@@ -34,13 +34,13 @@ Future<BookResponse> insertBook(Book item) async {
 }
 
 Future<BookResponse> updateBook(Book item) async {
-  Uri url = Uri.https(api_address, "$api_group/books");
+  Uri url = Uri.https(api_address, "$api_group/books/${item.id}");
   Response res = await put(url, body: jsonEncode(item), headers: _header);
 
   if (res.statusCode == 200) {
     return compute(bookResponseFromJson, res.body);
   } else {
-    throw Exception();
+    throw Exception();  
   }
 }
 

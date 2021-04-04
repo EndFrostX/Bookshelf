@@ -5,9 +5,12 @@ import 'package:bookshelf/Pages/PrivacyPolicy.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
+import 'Class/BookMarkPreferences.dart';
 import 'Pages/Home.dart';
 
-void main() {
+Future main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await BookMarkPreferences.init();
   runApp(MyApp());
 }
 
@@ -16,6 +19,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "BookShelf",
+      theme: ThemeData(
+        primaryColor: Colors.deepOrange,
+        accentColor: Colors.deepOrange,
+
+      ),
       debugShowCheckedModeBanner: false,
       home: MainPage(),
     );
@@ -46,30 +54,36 @@ class _MainPageState extends State<MainPage> {
 
   get _myDrawer {
     return Drawer(
-      child: ListView(
-        children: [
-          DrawerHeader(
+      child: Container(
+        color: Theme.of(context).primaryColor,
+        child: ListView(
+          children: [
+            DrawerHeader(
               decoration: BoxDecoration(
                   gradient: LinearGradient(colors: [
                     Colors.deepPurple,
                     Colors.purpleAccent,
                   ]),
                   image: DecorationImage(
-                    image: NetworkImage("https://i.imgur.com/XiyhRr9.jpg"),
+                    image: NetworkImage(
+                        "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"
+                  ),
                     fit: BoxFit.cover,
                   )),
-              child: Container()),
-          _myDrawerList(Icons.home, "General", page: 0),
-          _myDrawerList(Icons.category, "Category", page: 1),
-          _myDrawerList(Icons.bookmark, "BookMark", page: 2),
-          _myDrawerList(Icons.policy, "Privacy & Policy", page: 3),
-        ],
+              child: Container(),
+            ),
+            _myDrawerList(Icons.home, "General", page: 0),
+            _myDrawerList(Icons.category, "Category", page: 1),
+            _myDrawerList(Icons.bookmark, "BookMark", page: 2),
+            _myDrawerList(Icons.policy, "Privacy & Policy", page: 3),
+          ],
+        ),
       ),
     );
   }
 
   _myDrawerList(IconData icon, String text,
-      {Color colored = Colors.amber, int page}) {
+      {Color colored = Colors.white, int page}) {
     return InkWell(
       child: Container(
         margin: EdgeInsets.only(bottom: 10),
@@ -83,14 +97,20 @@ class _MainPageState extends State<MainPage> {
               padding: EdgeInsets.only(left: 35),
               child: Text(
                 text,
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(
+                  fontSize: 20,
+                  color: colored,
+                ),
               ),
             ),
             Expanded(
                 child: Container(
               padding: EdgeInsets.only(right: 10),
               alignment: Alignment.centerRight,
-              child: Icon(Icons.arrow_forward, color: colored),
+              child: Icon(
+                Icons.arrow_forward,
+                color: colored,
+              ),
             )),
           ],
         ),
@@ -108,24 +128,9 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_allPagesString[_currentPage]),
-        actions: [
-          _currentPage == 0
-              ? Container(
-                  child: IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        PageTransition(
-                          child: CreatePage(),
-                          type: PageTransitionType.rightToLeft,
-                        ),
-                      );
-                    },
-                  ),
-                )
-              : SizedBox(),
-        ],
+        centerTitle: true,
+        title: Text(_allPagesString[_currentPage],
+        ),
       ),
       drawer: _myDrawer,
       body: _allPages[_currentPage],
