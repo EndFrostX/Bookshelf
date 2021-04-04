@@ -6,6 +6,7 @@ import 'package:bookshelf/models/BookResponse.dart';
 import 'package:bookshelf/repos/book_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:bookshelf/Class/BookMarkPreferences.dart';
 
 class CategoryDetailPage extends StatefulWidget {
   CategoryDetailPage({this.category});
@@ -21,13 +22,14 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   double _height;
   Future<BookResponse> _futureData;
   List<Book> books;
-
+  List<String> _saved = [];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     setState(() {
       _futureData = getAllBooks();
+      _saved = BookMarkPreferences.getBookID();
     });
   }
 
@@ -251,23 +253,31 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   }
 
   _containerIcon(Book book) {
-    bool _bookmark = false;
+    bool bookmark = _saved.contains(book.id.toString());
+    //bool bookmark = false;
     return InkWell(
       child: Container(
-        alignment: Alignment.center,
-        child: _bookmark
-            ? Icon(
-                Icons.bookmark,
-                color: Colors.amber,
-              )
-            : Icon(
-                Icons.check,
-                color: Colors.lightGreen,
-              ),
+          alignment: Alignment.center,
+          child: bookmark ? Icon(Icons.check, color: Colors.lightGreen,)
+              : Icon(Icons.bookmark, color: Colors.amber,)
       ),
-      onTap: () {
-        _message("Added to bookmark", Colors.lightGreen);
-        _bookmark = !_bookmark;
+      onTap: () async{
+        //if false do this
+        if(!bookmark){
+          setState(() {
+            _saved.add(book.id.toString());
+          });
+          await BookMarkPreferences.setBookID(_saved);
+          _message("Added to bookmark", Colors.lightGreen);
+
+        }
+        else{
+          setState((){
+            _saved.remove(book.id.toString());
+          });
+          await BookMarkPreferences.setBookID(_saved);
+          _message("Remove from bookmark", Colors.lightGreen);
+        }
       },
     );
   }
@@ -286,7 +296,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
               ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.grey),
+                    MaterialStateProperty.all<Color>(Colors.grey),
                   ),
                   child: Text("Cancel"),
                   onPressed: () {
@@ -302,17 +312,16 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                     Navigator.of(context).pop();
                     Navigator.of(context)
                         .push(
-                          MaterialPageRoute(
-                            builder: (_) => EditPage(book),
-                          ),
-                        )
-                        .then((value) {});
+                      MaterialPageRoute(
+                        builder: (_) => EditPage(book),
+                      ),
+                    );
                   }),
                   _contentDialogue("Delete", Icons.delete, function: () {
                     Navigator.of(context).pop();
                     deleteBook(book).then((value) {
                       setState(() {
-                        _futureData = getAllBooks();
+                        books.removeWhere((e) => e.id == book.id);
                       });
                       _message("Deleted", Colors.redAccent);
                     });
