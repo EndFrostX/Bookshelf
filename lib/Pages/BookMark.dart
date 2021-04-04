@@ -265,10 +265,17 @@ class _BookMarkPageState extends State<BookMarkPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text("Option"),
-            backgroundColor: Colors.white,
+            title: Text(
+              "Options",
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Theme.of(context).primaryColor,
             actions: [
               ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor:
+                    MaterialStateProperty.all<Color>(Colors.grey),
+                  ),
                   child: Text("Cancel"),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -281,18 +288,24 @@ class _BookMarkPageState extends State<BookMarkPage> {
                 children: [
                   _contentDialogue("Edit", Icons.edit, function: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
+                    Navigator.of(context)
+                        .push(
                       MaterialPageRoute(
                         builder: (_) => EditPage(book),
                       ),
-                    );
+                    )
+                        .then((value) {
+                      refresh();
+                    });
                   }),
-                  _contentDialogue("Remove from Bookmark.", Icons.remove, function: () {
-                      setState(() {
-                        _data.remove(book);
-                      });
-                      _message("Successfully Removed!", Colors.redAccent);
-                      Navigator.of(context).pop();
+                  _contentDialogue("Removed from bookmark", Icons.delete, function: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _id.remove(book.id.toString());
+                    });
+                     BookMarkPreferences.setBookID(_id).then((value){
+                       _message("Successfully removed from bookmark", Colors.lightGreen);
+                     });
                   }),
                 ],
               ),
@@ -305,12 +318,26 @@ class _BookMarkPageState extends State<BookMarkPage> {
     return InkWell(
       child: Center(
         child: Container(
+          padding: EdgeInsets.all(15),
+          margin: EdgeInsets.only(bottom: 5),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
           width: MediaQuery.of(context).size.width,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(text),
-              Expanded(child: Icon(icon)),
+              Text(
+                text,
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+              Icon(
+                icon,
+                color: Theme.of(context).primaryColor,
+              ),
             ],
           ),
         ),
