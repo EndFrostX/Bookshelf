@@ -125,7 +125,15 @@ class _BookMarkPageState extends State<BookMarkPage> {
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => DetailPage(book),
-        ));
+        )).then((value){
+          if(value[0] == "delete"){
+            setState(() {
+              _id.remove(value[1].toString());
+            });
+            BookMarkPreferences.setBookID(_id);
+            _message("Remove from bookmark", Colors.lightGreen);
+          }
+        });
       },
       onLongPress: () {
         _showDialogue(book);

@@ -198,6 +198,7 @@ class _CreatePageState extends State<CreatePage> {
         categoryId: _tempHolderOfCategory.id,
         published: _publishedController.text.trim(),
         pages: int.parse(_pagesController.text.trim()),
+        views: 0,
       );
 
       insertBook(book).then((value) {

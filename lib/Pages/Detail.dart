@@ -1,3 +1,4 @@
+import 'package:bookshelf/Class/BookMarkPreferences.dart';
 import 'package:bookshelf/Pages/Edit.dart';
 import 'package:bookshelf/models/Book.dart';
 import 'package:bookshelf/models/BookResponse.dart';
@@ -147,8 +148,8 @@ class _DetailPageState extends State<DetailPage> {
                                   ),
                                   onPressed: () {
                                     deleteBook(currentBook);
-                                    Navigator.of(context).pop();
-                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop(["delete", currentBook.id]);
+                                    Navigator.of(context).pop(["delete",currentBook.id]);
                                   },
                                   icon: Icon(Icons.delete),
                                   label: Text("Yes"),
