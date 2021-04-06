@@ -1,4 +1,4 @@
-# bookshelf
+# Bookshelf
 
 An application that is designed for uploading books as PDF.
 
