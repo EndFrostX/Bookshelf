@@ -97,7 +97,7 @@ class _HomeState extends State<Home> {
                       height: 200,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: NetworkImage("https://cdni.iconscout.com/illustration/premium/thumb/empty-mind-3428245-2902710.png"),
+                          image: AssetImage("asset/images/empty.png"),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -163,7 +163,7 @@ class _HomeState extends State<Home> {
   _myContainerList(Book book) {
     return InkWell(
       child: Container(
-        height: _height * 0.2,
+        height: 150,
         width: _width,
         margin: EdgeInsets.zero,
         padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
@@ -172,7 +172,6 @@ class _HomeState extends State<Home> {
           children: [
             _containerPicture(book),
             _containerText(book),
-
             Expanded(child: _containerIcon(book)),
           ],
         ),
@@ -193,41 +192,25 @@ class _HomeState extends State<Home> {
   }
 
   _containerPicture(Book book) {
-    return InkWell(
-      child: Card(
-        elevation: 10,
-        child: Container(
-          width: _width * 0.35,
-          height: _height * 0.3,
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.blueAccent.withOpacity(0.2),
-                blurRadius: 12,
-              ),
-            ],
-            image: DecorationImage(
-              image: NetworkImage(
-                  "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"),
-              fit: BoxFit.fitHeight,
+    return Card(
+      elevation: 10,
+      child: Container(
+        width: _width * 0.35,
+        height: _height * 0.3,
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blueAccent.withOpacity(0.2),
+              blurRadius: 12,
             ),
+          ],
+          image: DecorationImage(
+            image: AssetImage("asset/images/logo.png"),
+            fit: BoxFit.fitHeight,
           ),
         ),
       ),
-      onTap: () {
-        Navigator.of(context)
-            .push(PageTransition(
-          child: DetailPage(book),
-          type: PageTransitionType.rightToLeftWithFade,
-        ))
-            .then((value) {
-          refresh();
-        });
-      },
-      onLongPress: () {
-        _showDialogue(book);
-      },
     );
   }
 
@@ -312,28 +295,31 @@ class _HomeState extends State<Home> {
     //bool bookmark = false;
     return InkWell(
       child: Container(
-        alignment: Alignment.center,
-        child: bookmark ? Icon(Icons.check, color: Colors.lightGreen,)
-            : Icon(Icons.bookmark, color: Colors.amber,)
-      ),
-      onTap: () async{
+          alignment: Alignment.center,
+          child: bookmark
+              ? Icon(
+                  Icons.check,
+                  color: Colors.lightGreen,
+                )
+              : Icon(
+                  Icons.bookmark,
+                  color: Colors.amber,
+                )),
+      onTap: () async {
         //if false do this
-        if(!bookmark){
+        if (!bookmark) {
           setState(() {
             _saved.add(book.id.toString());
           });
           await BookMarkPreferences.setBookID(_saved);
           _message("Added to bookmark", Colors.lightGreen);
-
-        }
-        else{
-          setState((){
+        } else {
+          setState(() {
             _saved.remove(book.id.toString());
           });
           await BookMarkPreferences.setBookID(_saved);
           _message("Remove from bookmark", Colors.lightGreen);
         }
-
       },
     );
   }

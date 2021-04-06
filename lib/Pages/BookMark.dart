@@ -51,11 +51,26 @@ class _BookMarkPageState extends State<BookMarkPage> {
   get _futureBuilder {
     if (_id.isEmpty) {
       return Center(
-        child: Container(
-          child: Text(
-            "You haven't bookmark anything yet.",
-            style: TextStyle(color: Colors.grey, fontSize: 16),
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: _width,
+              height: 200,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("asset/images/empty.png"),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Container(
+              child: Text(
+                "You haven't bookmark anything yet.",
+                style: TextStyle(color: Colors.grey, fontSize: 16),
+              ),
+            ),
+          ],
         ),
       );
     } else {
@@ -66,14 +81,27 @@ class _BookMarkPageState extends State<BookMarkPage> {
             _data = snapshot.data.data;
             if (_data.isNotEmpty) {
               return _myBody;
-            }
-            else{
+            } else {
               return Center(
-                child: Container(
-                  child: Text(
-                    "You haven't bookmark anything yet.",
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
+                child: Column(
+                  children: [
+                    Container(
+                      width: _width,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage("asset/images/empty.png"),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      child: Text(
+                        "You haven't bookmark anything yet.",
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      ),
+                    ),
+                  ],
                 ),
               );
             }
@@ -100,7 +128,7 @@ class _BookMarkPageState extends State<BookMarkPage> {
           }
           return _myContainerList(_data[index]);
         } else {
-          return Text("");
+          return SizedBox();
         }
       },
     );
@@ -109,7 +137,7 @@ class _BookMarkPageState extends State<BookMarkPage> {
   _myContainerList(Book book) {
     return InkWell(
       child: Container(
-        height: _height * 0.2,
+        height: 150,
         width: _width,
         margin: EdgeInsets.zero,
         padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
@@ -118,15 +146,17 @@ class _BookMarkPageState extends State<BookMarkPage> {
           children: [
             _containerPicture(book),
             _containerText(book),
-            _containerIcon(book),
+            Expanded(child: _containerIcon(book)),
           ],
         ),
       ),
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
+        Navigator.of(context)
+            .push(MaterialPageRoute(
           builder: (_) => DetailPage(book),
-        )).then((value){
-          if(value[0] == "delete"){
+        ))
+            .then((value) {
+          if (value[0] == "delete") {
             setState(() {
               _id.remove(value[1].toString());
             });
@@ -142,37 +172,25 @@ class _BookMarkPageState extends State<BookMarkPage> {
   }
 
   _containerPicture(Book book) {
-    return InkWell(
-      child: Card(
-        elevation: 10,
-        child: Container(
-          width: _width * 0.35,
-          height: _height * 0.3,
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.blueAccent.withOpacity(0.2),
-                blurRadius: 12,
-              ),
-            ],
-            image: DecorationImage(
-              image: NetworkImage(
-                  "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"),
-              fit: BoxFit.fitHeight,
+    return Card(
+      elevation: 10,
+      child: Container(
+        width: _width * 0.35,
+        height: _height * 0.3,
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blueAccent.withOpacity(0.2),
+              blurRadius: 12,
             ),
+          ],
+          image: DecorationImage(
+            image: AssetImage("asset/images/logo.png"),
+            fit: BoxFit.fitHeight,
           ),
         ),
       ),
-      onTap: () {
-        Navigator.of(context).push(PageTransition(
-          child: DetailPage(book),
-          type: PageTransitionType.rightToLeftWithFade,
-        ));
-      },
-      onLongPress: () {
-        _showDialogue(book);
-      },
     );
   }
 
@@ -324,8 +342,7 @@ class _BookMarkPageState extends State<BookMarkPage> {
                       refresh();
                     });
                   }),
-                  _contentDialogue("Removed from bookmark", Icons.delete,
-                      function: () {
+                  _contentDialogue("Removed", Icons.delete, function: () {
                     Navigator.of(context).pop();
                     setState(() {
                       _id.remove(book.id.toString());

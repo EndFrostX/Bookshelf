@@ -157,7 +157,8 @@ class _CreatePageState extends State<CreatePage> {
           _loading
               ? Container(
                   child: RefreshProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).primaryColor),
                   ),
                 )
               : Container(
@@ -169,7 +170,7 @@ class _CreatePageState extends State<CreatePage> {
                     ),
                     child: Text("Upload"),
                     onPressed: () {
-                      _auth();
+                      _showDialog();
                     },
                   ),
                 ),
@@ -260,6 +261,91 @@ class _CreatePageState extends State<CreatePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<dynamic> _showDialog() {
+    return showDialog(
+      context: context,
+      builder: (_) {
+        return Dialog(
+          backgroundColor: Colors.white.withOpacity(0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            height: 250,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Are you sure !",
+                        style: TextStyle(
+                          fontSize: 23,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "You will not be able to make change on any information of this book except title and description. Please make sure that all of your informations are correct!",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.grey,
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          icon: Icon(Icons.cancel),
+                          label: Text("Cancel"),
+                        ),
+                      ),
+                      Container(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.green,
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            _auth();
+                          },
+                          icon: Icon(Icons.delete),
+                          label: Text("Yes, I'm sure"),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -12,7 +12,7 @@ Map<String, String> _header = {
 };
 
 Future<BookResponse> getAllBooks() async {
-  Uri url = Uri.https(api_address, "$api_group/books");
+  Uri url = Uri.http(api_address, "$api_group/books");
   Response res = await get(url);
 
   if (res.statusCode == 200) {
@@ -23,7 +23,7 @@ Future<BookResponse> getAllBooks() async {
 }
 
 Future<BookResponse> insertBook(Book item) async {
-  Uri url = Uri.https(api_address, "$api_group/books");
+  Uri url = Uri.http(api_address, "$api_group/books");
   Response res = await post(url, body: jsonEncode(item), headers: _header);
 
   if (res.statusCode == 200) {
@@ -34,18 +34,18 @@ Future<BookResponse> insertBook(Book item) async {
 }
 
 Future<BookResponse> updateBook(Book item) async {
-  Uri url = Uri.https(api_address, "$api_group/books/${item.id}");
+  Uri url = Uri.http(api_address, "$api_group/books/${item.id}");
   Response res = await put(url, body: jsonEncode(item), headers: _header);
 
   if (res.statusCode == 200) {
     return compute(bookResponseFromJson, res.body);
   } else {
-    throw Exception();  
+    throw Exception();
   }
 }
 
 Future<BookResponse> deleteBook(Book item) async {
-  Uri url = Uri.https(api_address, "$api_group/books/${item.id}");
+  Uri url = Uri.http(api_address, "$api_group/books/${item.id}");
   Response res = await delete(url);
 
   if (res.statusCode == 200) {

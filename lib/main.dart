@@ -1,6 +1,5 @@
 import 'package:bookshelf/Pages/BookMark.dart';
 import 'package:bookshelf/Pages/Category.dart';
-import 'package:bookshelf/Pages/Create.dart';
 import 'package:bookshelf/Pages/PrivacyPolicy.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -11,6 +10,9 @@ import 'Pages/Home.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await BookMarkPreferences.init();
+  if (BookMarkPreferences.getBookID() == null) {
+    BookMarkPreferences.setBookID([]);
+  }
   runApp(MyApp());
 }
 
@@ -55,8 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
             image: DecorationImage(
-          image: NetworkImage(
-              "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"),
+          image: AssetImage("asset/images/logo.png"),
           fit: BoxFit.cover,
         )),
       ),
@@ -99,8 +100,7 @@ class _MainPageState extends State<MainPage> {
                     Colors.purpleAccent,
                   ]),
                   image: DecorationImage(
-                    image: NetworkImage(
-                        "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"),
+                    image: AssetImage("asset/images/logo.png"),
                     fit: BoxFit.cover,
                   )),
               child: Container(),

@@ -5,7 +5,6 @@ import 'package:bookshelf/models/BookCategory.dart';
 import 'package:bookshelf/models/BookResponse.dart';
 import 'package:bookshelf/repos/book_repo.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:bookshelf/Class/BookMarkPreferences.dart';
 
 import '../repos/book_repo.dart';
@@ -24,7 +23,8 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   double _height;
   Future<BookResponse> _futureData;
   List<Book> books;
-  List<String> _saved = [];
+  List<String> _saved;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -38,8 +38,8 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   get _buildBody {
     return FutureBuilder<BookResponse>(
       future: _futureData,
-      builder: (_,snapshot){
-        if(snapshot.connectionState == ConnectionState.done){
+      builder: (_, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
           books = snapshot.data.data
               .where((e) => e.categoryId == widget.category.id)
               .toList();
@@ -47,7 +47,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
           if (books.isNotEmpty) {
             return Container(
               child: RefreshIndicator(
-                onRefresh: (){
+                onRefresh: () {
                   setState(() {
                     _futureData = getAllBooks();
                   });
@@ -71,7 +71,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                   height: 300,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage("https://cdni.iconscout.com/illustration/premium/thumb/search-result-not-found-3428237-2902696.png"),
+                      image: AssetImage("asset/images/empty.png"),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -96,18 +96,18 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
         }
         return Center(
           child: RefreshProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+            valueColor:
+                AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
           ),
         );
       },
     );
-
   }
 
   _myContainerList(Book book) {
     return InkWell(
       child: Container(
-        height: _height * 0.2,
+        height: 150,
         width: _width,
         margin: EdgeInsets.zero,
         padding: EdgeInsets.only(top: 10, bottom: 10, left: 5),
@@ -116,7 +116,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
           children: [
             _containerPicture(book),
             _containerText(book),
-            _containerIcon(book),
+            Expanded(child: _containerIcon(book)),
           ],
         ),
       ),
@@ -138,43 +138,25 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   }
 
   _containerPicture(Book book) {
-    return InkWell(
-      child: Card(
-        elevation: 10,
-        child: Container(
-          width: _width * 0.35,
-          height: _height * 0.3,
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.blueAccent.withOpacity(0.2),
-                blurRadius: 12,
-              ),
-            ],
-            image: DecorationImage(
-              image: NetworkImage(
-                  "https://i.pinimg.com/originals/dd/64/da/dd64da585bc57cb05e5fd4d8ce873f57.png"),
-              fit: BoxFit.fitHeight,
+    return Card(
+      elevation: 10,
+      child: Container(
+        width: _width * 0.35,
+        height: _height * 0.3,
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blueAccent.withOpacity(0.2),
+              blurRadius: 12,
             ),
+          ],
+          image: DecorationImage(
+            image: AssetImage("asset/images/logo.png"),
+            fit: BoxFit.fitHeight,
           ),
         ),
       ),
-      onTap: () {
-        Navigator.of(context)
-            .push(PageTransition(
-          child: DetailPage(book),
-          type: PageTransitionType.rightToLeftWithFade,
-        ))
-            .then((value) {
-          setState(() {
-            _futureData = getAllBooks();
-          });
-        });
-      },
-      onLongPress: () {
-        _showDialogue(book);
-      },
     );
   }
 
@@ -260,21 +242,25 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
     return InkWell(
       child: Container(
           alignment: Alignment.center,
-          child: bookmark ? Icon(Icons.check, color: Colors.lightGreen,)
-              : Icon(Icons.bookmark, color: Colors.amber,)
-      ),
-      onTap: () async{
+          child: bookmark
+              ? Icon(
+                  Icons.check,
+                  color: Colors.lightGreen,
+                )
+              : Icon(
+                  Icons.bookmark,
+                  color: Colors.amber,
+                )),
+      onTap: () async {
         //if false do this
-        if(!bookmark){
+        if (!bookmark) {
           setState(() {
             _saved.add(book.id.toString());
           });
           await BookMarkPreferences.setBookID(_saved);
           _message("Added to bookmark", Colors.lightGreen);
-
-        }
-        else{
-          setState((){
+        } else {
+          setState(() {
             _saved.remove(book.id.toString());
           });
           await BookMarkPreferences.setBookID(_saved);
@@ -298,7 +284,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
               ElevatedButton(
                   style: ButtonStyle(
                     backgroundColor:
-                    MaterialStateProperty.all<Color>(Colors.grey),
+                        MaterialStateProperty.all<Color>(Colors.grey),
                   ),
                   child: Text("Cancel"),
                   onPressed: () {
@@ -312,8 +298,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                 children: [
                   _contentDialogue("Edit", Icons.edit, function: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context)
-                        .push(
+                    Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => EditPage(book),
                       ),
@@ -396,5 +381,4 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
       return " ${views}";
     }
   }
-
 }

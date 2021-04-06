@@ -27,8 +27,8 @@ class _CategoryPageState extends State<CategoryPage> {
           }
           return Center(
             child: RefreshProgressIndicator(
-              // valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
-            ),
+                // valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                ),
           );
         },
       ),
@@ -63,6 +63,7 @@ class _CategoryPageState extends State<CategoryPage> {
       },
       child: ListTile(
         title: Text(item.name),
+        subtitle: Text("books: ${getAmountOfBook(item)}"),
         trailing: Icon(Icons.navigate_next),
       ),
     );
@@ -92,5 +93,13 @@ class _CategoryPageState extends State<CategoryPage> {
         _allBooks = value.data;
       });
     });
+  }
+
+  String getAmountOfBook(BookCategory item) {
+    return _allBooks
+        .where((e) => e.categoryId == item.id)
+        .toList()
+        .length
+        .toString();
   }
 }

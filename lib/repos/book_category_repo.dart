@@ -3,9 +3,8 @@ import 'package:bookshelf/repos/repo_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
-
 Future<BookCategoryResponse> getAllBookCategories() async {
-  Uri url = Uri.https(api_address, "$api_group/book-categories");
+  Uri url = Uri.http(api_address, "$api_group/book-categories");
   Response res = await get(url);
 
   if (res.statusCode == 200) {
